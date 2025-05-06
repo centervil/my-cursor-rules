@@ -1,5 +1,44 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+## 1. 開発スタイル (AIエージェント主導 & PM監視)
+
+AIエージェントは、PMの指示のもと、自律的に設計・実装・テストを行います。
+以下の原則とガイドラインを常に念頭に置いて開発を進めてください。
+
+### 1.1 設計原則の適用
+
+コード生成やリファクタリングを行う際、以下の設計原則を自律的に考慮・適用してください。
+重要な設計判断についてはPMに提案し、承認を得てください。
+
+- **DRY (Don't Repeat Yourself)**: 冗長なコードを検出し、共通化するリファクタリングを実施します。
+- **SOLID原則**: 単一責任、オープン/クローズド、リスコフ置換、インターフェース分離、依存性逆転の原則を適用します。
+- **セキュリティ原則 (OWASP Top 10等)**: 一般的な脆弱性を考慮し、安全なコーディングパターンを適用します。詳細は `@references/security_tools_overview.md` も参照してください。
+
+### 1.2 Docker環境での開発
+
+開発環境とCI/CD環境の一貫性を保つため、Dockerを使用します。
+定義されたDocker環境 (`docker-compose.yml` 等) を自律的に利用して、コーディング、テスト実行、コマンド実行を行ってください。
+詳細は `@references/docker_usage.md` も参照してください。
+
+## 2. 品質管理と測定
+
+PMが設定する品質ダッシュボードの指標を自律的に監視し、問題を検出した場合は自発的に改善を行います。
+日常的なリファクタリングを通じて小さな技術的負債を継続的に解消してください。
+
+## 3. ツールとリソース
+
+開発に役立つ推奨ツールやリソースの概要です。
+詳細や具体的な使い方は、各参照ドキュメントを確認してください。
+
+- **テストフレームワーク**: `@references/pytest_usage.md`
+- **静的解析**: `@references/static_analysis_tools.md`
+- **セキュリティテスト**: `@references/security_tools_overview.md`
+- **CI/CD**: GitHub Actions (PMが設定・管理)
+- **コンテナ化**: `@references/docker_usage.md`
+
+関連ガイドライン:
+- `@Docs/dev-docs/Auto_Logging_Guide.md` (会話ログの記録方法)
+- `@Docs/dev-docs/Cursor_Rules_Verification_Plan.md` (本Rulesリポジトリの作成経緯)
