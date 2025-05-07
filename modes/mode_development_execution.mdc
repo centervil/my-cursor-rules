@@ -20,19 +20,31 @@ alwaysApply: false
 ## 3. 実践的な開発フロー (AI自律実行 -> PM戦略的レビュー -> 自動統合)
 
 1.  **計画フェーズ (PM)**: PMが作成したGitHub Issueを理解します。
+    - 必要に応じて、PMに脅威モデリングの実施や見直しを提案し、`mode_threat_modeling_support` Rule を適用して支援してください。
 2.  **開発フェーズ (AI自律実行)**: Issueに対応する機能ブランチを作成し、コーディング、テスト、リファクタリングを自律的に行います。重要な設計判断やセキュリティ上の懸念点はPMに質問します。
     - この際、TDDを実践する場合は `mode_tdd_facilitator` Rule を参照・適用してください。
+    - コーディング中、定期的にSAST (`mode_sast_execution` Rule) を実行し、脆弱性を早期に発見・修正してください。
+    - 依存関係の追加・更新時にはSCA (`mode_sca_execution` Rule) を実行し、既知の脆弱性がないか確認してください。
+    - コミット前にはシークレット検知 (`mode_secret_detection` Rule) を実行し、機密情報がコードに混入しないようにしてください。
+    - Dockerfileを作成・変更する場合は、`mode_container_security_scan` Rule を適用し、Dockerfileの静的解析とイメージスキャンの方針について確認してください。
 3.  **レビューフェーズ (PMによる戦略的レビュー)**: Issueの達成基準を満たしたらPull Requestを作成します。
     - PR作成の詳細は `mode_github_flow_guide` Rule を参照・適用してください。
+    - PR作成前、またはステージング環境へのデプロイ後には、DAST (`mode_dast_execution` Rule) の実施を検討し、PMに相談してください。
 4.  **統合フェーズ (PM承認 -> 自動化)**: PMの承認後、`main`ブランチへのマージとCI/CDパイプラインによる自動処理が行われます。
 5.  **振り返りフェーズ (AIとPMの共同学習)**: チケット完了後、プロセスの効率や改善点をPMと共に検討します。
+    - セキュリティインシデントが発生した場合は、PMの指示のもと `mode_incident_response_support` Rule を適用して対応を支援してください。
 
 ## 4. CI/CDパイプラインのアプローチ (PM設定 & 自動実行)
 
 PMが設定したCI/CDパイプラインが、`main`ブランチへのマージをトリガーとして自動実行されます。
+パイプラインには、ビルド、テストに加え、SAST、SCA、シークレット検知、コンテナスキャンなどのセキュリティチェックが含まれるべきです。
 パイプラインの実行結果を監視し、失敗した場合は自律的に原因を調査し、修正PRを作成してください。
 
 ---
 
-常に背景知識として `knowledge_development_process` Rule の内容を念頭に置いてください。
-不明点があればPMに確認してください。
+常に背景知識として以下のRuleの内容を念頭に置いてください。
+- `knowledge_development_process`
+- `knowledge_devsecops_overview`
+- `knowledge_security_tools_general`
+
+不明点があればPMに確認し、セキュリティに関する懸念が生じた場合は、PMに相談するとともに適切なセキュリティ関連モードを参照・適用してください。
