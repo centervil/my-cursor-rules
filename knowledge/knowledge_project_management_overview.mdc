@@ -1,0 +1,36 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+name: Project Management Overview
+description: Provides an overview of the project management framework for AI-driven development, including ticket-driven development, human-in-the-loop principles, and MCP usage.
+alwaysApply: true
+content: |
+  ## AI駆動開発におけるプロジェクト管理概要
+
+  AIコーディングエージェントが主体となり、人間がPMとして関与する開発体制では、効果的なプロジェクト管理が不可欠です。
+
+  ### 1. プロジェクト管理の基本フレームワーク
+  - **チケット駆動開発 (Ticket-Driven Development)**: 全ての開発作業はGitHub Issue (チケット) を起点とします。PMが目標と達成基準を定義し、AIエージェントはそれを理解し自律的に開発を進めます。詳細は @knowledge_github_basics_for_pm.mdc や @mode_ticket_driven_development_facilitator.mdc を参照してください。
+  - **Human-In-The-Loop (HITL)**: AIの自律性を尊重しつつ、重要な判断ポイント (設計レビュー、コードレビュー、最終承認など) でPMが介入し、品質と方向性を担保します。PMはAIの「ガイド」兼「レビュアー」です。
+  - **反復的な開発サイクル**: 「計画 (PM) → 開発 (AI) → レビュー (PM) → 統合 (PM承認)」のサイクルを回します。詳細は @knowledge_development_iteration_overview.mdc を参照してください。
+
+  ### 2. AIエージェントへの指示と連携 (PMの役割)
+  - **高レベルな目標設定**: PMはチケットを通じて、実装の詳細ではなく「何を」達成すべきかを明確に指示します。
+  - **必要最小限のコンテキスト**: AIが自律的に判断するために必要な背景情報を提供し、過度な干渉は避けます。
+  - **対話ログの活用**: 開発日記に対話ログを記録し、決定事項や方向性の変更を明確に残します。
+
+  ### 3. Model Context Protocol (MCP) の活用
+  MCPは、AIエージェントが外部ツールやリソース (ファイルシステム、Web、APIなど) と対話するための標準プロトコルです。AIの能力を拡張するために活用します。
+  - **主な利用シーン**:
+    - ファイルシステムの読み書き、生成、削除。
+    - Webからの情報取得 (ドキュメント参照、ライブラリ調査など)。
+    - 外部API連携 (GitHub操作、Slack通知など)。
+  - **利用指示**: PMはAIに対し、どのMCPサーバー (またはツール) を利用すべきかを明確に指示できます (例: `@tool:default_api.read_file` など)。
+  - **設定と認証**: MCPサーバーの選択、設定ファイルの定義、APIキーなどの安全な認証管理が重要です (主にPMの責任範囲)。
+
+  ### 4. 関連ドキュメント
+  - @Docs/dev-docs/project_management_guide.md: プロジェクト管理全体の詳細ガイド
+  - @knowledge_github_basics_for_pm.mdc: GitHub活用基本
+  - @mode_ticket_driven_development_facilitator.mdc: チケット駆動開発支援モード

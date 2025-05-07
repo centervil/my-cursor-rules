@@ -1,0 +1,52 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+name: Quality Management Overview
+description: Provides a high-level overview of quality management dashboards, their purpose, key metrics, and integration with CI/CD. Links to more detailed dashboard guides.
+alwaysApply: true
+content: |
+  ## 品質管理ダッシュボード概要
+
+  品質管理ダッシュボードは、プロジェクトの健全性、コード品質、AIエージェントの活動状況を可視化し、データに基づいた意思決定を支援するための重要なツールです。
+
+  ### 1. ダッシュボードの目的
+  - **透明性の確保**: プロジェクト全体の品質状況を関係者全員が把握できるようにする。
+  - **早期問題検出**: 品質劣化やビルド失敗などの問題を早期に発見し、迅速な対応を可能にする。
+  - **継続的改善の促進**: 客観的なデータに基づき、開発プロセスやAIエージェントのパフォーマンス改善を促す。
+  - **意思決定支援**: PMがデータに基づき、リソース配分やリスク管理などの戦略的な意思決定を行うのに役立てる。
+
+  ### 2. 主要な品質指標 (例)
+  ダッシュボードで追跡すべき主要な指標には、以下のようなものがあります。
+  - **コード品質指標**:
+    - テストカバレッジ率 (全体、モジュール別)
+    - 静的解析結果 (警告・エラー数、コードスメル数)
+    - コード複雑度 (循環的複雑度など)
+    - 技術的負債 (TODO/FIXME数、重複コード率など)
+  - **プロセス品質指標**:
+    - ビルド成功率、テスト実行時間
+    - PRのマージ時間、レビュー時間
+    - Issue解決時間
+  - **成果品質指標**:
+    - バグ密度、バグ修正時間
+    - パフォーマンス指標 (レスポンスタイム、スループットなど)
+
+  これらの指標に加え、`@knowledge_devsecops_overview.mdc` で触れられているセキュリティ指標も品質管理の重要な側面です。
+
+  ### 3. GitHub Actionsによる自動化と連携
+  - CI/CDパイプライン (例: GitHub Actions) を活用し、テスト実行、静的解析、カバレッジ測定などを自動化します。
+  - これらの結果を自動的に収集し、ダッシュボードに表示する仕組みを構築します。
+  - `@project_management_guide.md` のセクション3.3には、GitHub Actionsを用いた自動レポート生成の例 (`.github/workflows/quality-report.yml`) が記載されています。 (詳細は @ref_example_quality_report_workflow.yaml を参照)
+
+  ### 4. 独自ダッシュボードの構築
+  - 収集したデータを基に、独自のダッシュボードを構築できます。
+  - **アプローチ例**:
+    - 軽量: JSON/CSVファイル + 静的HTML (Chart.jsなど)
+    - 高機能: データベース (SQLite/PostgreSQL) + Grafana / カスタムWebアプリ
+  - `@project_management_guide.md` のセクション3.2.2には、ダッシュボード生成スクリプトの例 (`scripts/generate_dashboard.py`) が記載されています。 (詳細は @ref_example_dashboard_script.py を参照)
+
+  ### 5. 関連ドキュメント・Rule
+  - @knowledge_quality_dashboard_construction_guide.mdc (または @Docs/dev-docs/quality_dashboard_guide.md): 品質ダッシュボードの構築・運用に関する詳細ガイド
+  - @mode_quality_dashboard_operation.mdc: 品質ダッシュボード運用支援モード
+  - @Docs/dev-docs/project_management_guide.md#3-品質管理ダッシュボード

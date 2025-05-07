@@ -1,0 +1,52 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+name: Test Strategy Overview
+description: Provides a high-level overview of testing strategies, including Pytest usage, test structure, the test pyramid, mocking, and parameterized testing. Links to more detailed Pytest best practices.
+alwaysApply: true
+content: |
+  ## テスト戦略概要
+
+  品質の高いソフトウェアを開発するためには、効果的なテスト戦略が不可欠です。AIエージェントは自律的にテストを設計・実装することが期待されます。
+
+  ### 1. Pytestの活用
+  - Pythonプロジェクトでは、シンプルかつ強力なテストフレームワークである `pytest` の利用を推奨します。
+  - AIエージェントは `pytest` の規約に従い、テストファイルやテスト関数を自動検出し、`assert` 文で検証を行うテストコードを生成します。
+  - 詳細な `pytest` のベストプラクティスや具体的な利用方法については、@knowledge_pytest_best_practices.mdc (または @Docs/dev-docs/pytest_best_practices.md) を参照してください。
+
+  ### 2. 推奨テスト構造
+  一般的に、以下のような階層的なテストディレクトリ構造が推奨されます:
+  ```
+  tests/
+  ├── conftest.py        # 共通フィクスチャ
+  ├── unit/              # ユニットテスト
+  │   └── test_*.py      
+  ├── integration/       # 統合テスト
+  │   └── test_*_integration.py
+  └── e2e/               # エンドツーエンドテスト (必要な場合)
+      └── test_*_e2e.py
+  ```
+  - AIエージェントは既存の構造に従い、適切な場所にテストファイルを作成します。
+
+  ### 3. テストピラミッド
+  テストの種類と量のバランスを示すテストピラミッドの考え方を理解しておくことが重要です。
+  - **単体テスト (Unit Tests)**: 関数やメソッドなど、最小単位のコンポーネントを検証。数が多く、実行速度が速い。AIは主にこのレベルのテストを多数生成します。
+  - **統合テスト (Integration Tests)**: 複数のコンポーネント間の連携を検証。単体テストより数は少なく、実行にやや時間がかかる。
+  - **エンドツーエンドテスト (E2E Tests)**: システム全体の動作をユーザー視点で検証。数は最も少なく、実行に時間がかかる。PMの指示や特定の重要機能に対してAIが支援的に作成することがあります。
+
+  ### 4. モックとスタブの活用
+  - 外部依存性 (API、データベース、時間のかかる処理など) を持つコンポーネントをテストする際には、モックやスタブを効果的に活用します。
+  - `pytest` では `monkeypatch` フィクスチャや `pytest-mock` プラグインを利用できます。
+  - AIエージェントは、テスト対象の分離とテストの安定性・速度向上のために、適切にモックを使用することが期待されます。
+  - 詳細は @knowledge_pytest_best_practices.mdc (または @Docs/dev-docs/pytest_best_practices.md) を参照してください。
+
+  ### 5. パラメータ化テスト
+  - 同じテストロジックを異なる入力値と期待値で繰り返し実行するために、`@pytest.mark.parametrize` を活用します。
+  - AIエージェントは、境界値、代表値、異常値などを考慮したテストケースを効率的に生成するために、パラメータ化テストを積極的に利用します。
+
+  ### 6. 関連ドキュメント・Rule
+  - @knowledge_pytest_best_practices.mdc (または @Docs/dev-docs/pytest_best_practices.md): Pytestのより詳細なベストプラクティス
+  - @mode_tdd_facilitator.mdc: テスト駆動開発支援モード
+  - @Docs/dev-docs/project_management_guide.md#2-テスト戦略

@@ -1,5 +1,62 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+name: SAST Execution Mode
+description: Guides the AI agent in performing Static Application Security Testing (SAST), interpreting results, reporting vulnerabilities, and suggesting fixes.
+content: |
+  ## SAST (静的アプリケーションセキュリティテスト) 実行モード
+
+  あなたは現在、SAST実行モードで動作しています。ソースコードを静的に解析し、潜在的なセキュリティ脆弱性を検出・報告し、修正を支援してください。
+
+  ### 基本的な行動指針
+  - PMからの指示やCI/CDパイプラインのトリガーに基づき、適切なSASTツール (Bandit, Semgrepなど) を選択・実行する。
+  - 検出された脆弱性の重要度と信頼度を評価し、誤検知の可能性も考慮する。
+  - 報告は具体的かつ分かりやすく行い、PMが迅速に意思決定できるようにする。
+  - 関連ドキュメント:
+    - @knowledge_security_tools_general.mdc#1-静的アプリケーションセキュリティテスト-sast
+    - @references/sast_bandit_usage.md
+    - @references/sast_semgrep_usage.md
+    - @Docs/dev-docs/devsecops_guide.md#4-静的アプリケーションセキュリティテスト-sast-ai自律実行
+
+  ### 主な実行ステップ
+
+  1.  **SASTツールの選択と設定**:
+      - プロジェクトの言語やフレームワーク、PMの指示に基づき、使用するSASTツール (例: PythonならBandit、多言語ならSemgrep) を決定する。
+      - 必要に応じて設定ファイル (例: `bandit.yaml`, Semgrepのカスタムルール) を参照・利用する。
+      - スキャン対象のファイルやディレクトリを特定する。
+
+  2.  **スキャンの実行**:
+      - 選択したツールと設定でスキャンを実行する。出力はJSON形式など、機械的に処理しやすいフォーマットを指定する。
+      - コマンド例 (詳細は各参照ドキュメントを参照):
+        - `bandit -r src/ -f json -o bandit-report.json`
+        - `semgrep scan --config auto --json --output semgrep-report.json src/`
+
+  3.  **結果の解析と評価**:
+      - スキャン結果のレポートファイル (JSON) を読み込み、検出された各脆弱性（問題点）を抽出する。
+      - 各脆弱性について、ID、ファイルパス、行番号、説明、重要度 (Severity)、信頼度 (Confidence) などを特定する。
+      - 誤検知の可能性があるものについては、その根拠とともにフラグを立てる。
+
+  4.  **脆弱性の報告**:
+      - PMに対して、検出された脆弱性を報告する。報告形式はPMの指示に従う (PRコメント、Issue作成、開発日記など)。
+      - 報告には、上記3で特定した情報を含める。
+      - 特に重要度・信頼度が高いもの、修正が容易なものなどを優先的に報告することを検討する。
+
+  5.  **修正提案**:
+      - 検出された脆弱性に対して、具体的な修正コードや設定変更を提案する。
+      - 各SASTツールの参照ドキュメントに記載されている「AIエージェントの役割」内の修正提案例を参考にする。
+      - 修正によって他の機能に影響が出ないか、基本的な確認を行う。
+
+  6.  **CI/CDパイプラインとの連携**:
+      - CI/CDパイプラインでSASTが実行される場合、その結果を監視する。
+      - パイプラインが脆弱性検出により失敗した場合、原因を特定し、修正PRを作成するなど、迅速に対応する。
+
+  ### モードの終了
+  SASTの実行、報告、修正提案が一通り完了したと判断した場合、またはPMから指示があった場合に、包括的開発モード (`@mode_development_execution.mdc`) に戻ります。
+
+  ### PMへの確認事項例
+  - 「今回のSASTスキャンでは、BanditとSemgrepのどちらを優先的に使用すべきですか？あるいは両方実行しますか？」
+  - 「Semgrepで特定のカスタムルールセットを使用すべきですか？もしあればパスを教えてください。」
+  - 「検出された脆弱性のうち、どの重要度レベル以上のものを報告すべきですか？ (例: HIGH以上)」
+  - 「脆弱性の報告は、GitHub Issueとして個別に作成すべきですか、それともPRのコメントにまとめて記載すべきですか？」

@@ -1,0 +1,44 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+name: GitHub Basics for Project Management
+description: Outlines the basics of using GitHub for project management, including project boards, issue tracking, pull requests, labels, and milestones.
+alwaysApply: true
+content: |
+  ## GitHubを活用したプロジェクト進捗管理の基本
+
+  GitHubは、AIエージェントが自律的に開発活動を行う上で、PMが進捗を管理し、品質を担保するための中心的なプラットフォームです。
+
+  ### 1. プロジェクトボード
+  - **目的**: タスクの可視化と進捗の追跡。
+  - **作成**: 各プロジェクトごとにGitHubプロジェクトボードを作成します。
+  - **カンバン方式**: 一般的に「Todo」「In Progress」「Review」「Done」といったカラムを設定します。
+    - AIエージェントは、作業開始時にチケットを「In Progress」に、PR作成時に「Review」に自律的に移動させることが期待されます。
+  - **自動化**: GitHub Actionsを利用して、ブランチ作成やPRオープン、マージといったイベントに応じてチケットが自動でカラム間を移動するように設定できます。
+
+  ### 2. Issue管理 (チケット駆動開発)
+  - **チケット駆動**: 全ての開発タスクはGitHub Issue (チケット) を起点とします。
+  - **PMの役割**: 開発のゴール、背景、達成基準 (Acceptance Criteria)、関連するセキュリティ要件などを記述します。
+  - **AIの役割**: チケット内容を理解し、自律的に開発を進めます。
+  - **タスクの粒度**: AIが1-2日で完了できる明確で独立した作業単位が目安。大きな機能は複数チケットに分割し、依存関係を明示します。
+  - **テンプレート活用**: 機能開発、バグ修正などの種類に応じたIssueテンプレートを用意し、構造化された情報入力を促します。
+  - **ラベル体系**: 状況や種類を把握しやすくするためにラベルを活用します。
+    - 優先度例: `priority:high`, `priority:medium`, `priority:low`
+    - 種類例: `type:feature`, `type:bug`, `type:docs`, `type:refactor`, `type:security`
+    - 状態例: `status:blocked`, `status:needs-discussion`, `status:agent-working`, `status:human-review`
+  - **マイルストーン**: 開発フェーズや期間ごとにマイルストーンを設定し、進捗を管理します。
+
+  ### 3. プルリクエスト (PR) による品質保証
+  - **PRテンプレート活用**: AIが作成するPRには、関連Issue番号、変更概要、実装アプローチ、テスト結果、セキュリティチェック結果などを記述するようテンプレートで定めます。
+  - **レビュープロセス (PM)**: PMはAIが作成したコードの全体的なアーキテクチャ、方向性、セキュリティなどをレビューします。
+  - **修正指示**: PMは高レベルな修正方針をコメントし、AIが自律的に修正します。
+  - **自動テスト**: CI/CDによる自動テストとセキュリティスキャンは必須とし、結果をPRに表示します。
+  - **最終承認**: 全てのレビューコメントが解決し、テスト・スキャンがパスした後、PMがマージを承認します。
+
+  ### 4. 関連モード・ドキュメント
+  - @mode_ticket_driven_development_facilitator.mdc: AIがチケット駆動開発を進める際の具体的なガイダンス
+  - @mode_pull_request_creation_guide.mdc: AIがPRを作成する際の具体的なガイダンス
+  - @knowledge_project_management_overview.mdc: プロジェクト管理全体の概要
+  - @Docs/dev-docs/project_management_guide.md#11-githubを活用した進捗管理

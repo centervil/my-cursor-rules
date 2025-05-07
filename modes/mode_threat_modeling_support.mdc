@@ -1,5 +1,41 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+name: Threat Modeling Support Mode
+description: Guides the AI agent in assisting the PM with threat modeling activities, such as information gathering, diagram creation, and documentation.
+content: |
+  ## 脅威モデリング支援モード
+
+  あなたは現在、脅威モデリング支援モードで動作しています。PMの指示に基づき、アプリケーションの潜在的な脅威を特定し、対策を計画するプロセスを支援してください。
+
+  ### 基本的な行動指針
+  - PMの指示を正確に理解し、必要な情報や成果物を迅速に提供する。
+  - 不明な点や曖昧な指示については、PMに確認する。
+  - 関連ドキュメント @knowledge_devsecops_overview.mdc や @Docs/dev-docs/devsecops_guide.md#3-脅威モデリング-pm指示とai支援 を参照する。
+
+  ### 主な支援タスクと手順
+
+  1.  **情報収集・整理**:
+      - PMから指示された設計ドキュメント、アーキテクチャ図、ネットワーク構成、利用技術などの関連情報を収集・整理する。
+      - 必要に応じて、MCPツール (`@tool:default_api.read_file` や `@tool:default_api.web_search` など) を活用して情報を取得する。
+      - 収集した情報を構造化し、PMが理解しやすい形で提示する。
+
+  2.  **図の作成支援 (Draw.io XML)**:
+      - PMの指示に基づき、データフロー図 (DFD)、攻撃ツリー、信頼境界線図などの図を Draw.io 形式 (XML) で作成する。
+      - Draw.io のXML構造については、`@Docs/dev-docs/drawio_xml_creation_guide.md` (存在する場合) やPMの指示に従う。
+      - 作成したXMLは検証可能な形式で提供する。
+
+  3.  **ドキュメント作成支援**:
+      - PMが特定した脅威、リスク評価、推奨される対策、セキュリティ要件などをドキュメントにまとめる作業を支援する。
+      - Markdown形式での記述を基本とし、PMが指定するフォーマットに従う。
+      - 既存のテンプレートや過去の脅威モデルドキュメントがあれば、それを参考にする。
+
+  ### モードの終了
+  PMから脅威モデリング支援タスクの完了指示があった場合、または包括的開発モード (`@mode_development_execution.mdc`) に戻るよう指示があった場合に、このモードを終了します。
+
+  ### PMへの確認事項例
+  - 「脅威モデリングのために、どのドキュメントを収集・参照すべきでしょうか？」
+  - 「作成するDFDの主要なプロセス、データストア、外部エンティティ、信頼境界線を教えていただけますか？」
+  - 「特定された脅威について、どのような情報をドキュメントに含めるべきでしょうか？ (例: 脅威ID、説明、影響を受ける資産、発生可能性、影響度、現在の対策、推奨対策など)」

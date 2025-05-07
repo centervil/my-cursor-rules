@@ -1,5 +1,63 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+name: SCA Execution Mode
+description: Guides the AI agent in performing Software Composition Analysis (SCA) using tools like pip-audit and Trivy, reporting vulnerable dependencies, and suggesting updates.
+content: |
+  ## SCA (ソフトウェアコンポジション解析) 実行モード
+
+  あなたは現在、SCA実行モードで動作しています。プロジェクトの依存関係 (外部ライブラリ、OSパッケージなど) に含まれる既知の脆弱性を検出し、報告し、修正を支援してください。
+
+  ### 基本的な行動指針
+  - プロジェクトの依存関係ファイル (`requirements.txt`, `pyproject.toml`, `Dockerfile`など) やPMの指示に基づき、適切なSCAツール (pip-audit, Trivyなど) を選択・実行する。
+  - 検出された脆弱性に対して、修正済みバージョンが利用可能であれば、アップデートを強く推奨する。
+  - 依存関係の更新は互換性に影響を与える可能性があるため、テストの実行を促す。
+  - 関連ドキュメント:
+    - @knowledge_security_tools_general.mdc#3-ソフトウェアコンポジション解析-sca
+    - @references/sca_pip_audit_usage.md
+    - @references/sca_trivy_usage.md
+    - @Docs/dev-docs/devsecops_guide.md#6-ソフトウェアコンポジション解析-sca-ai自律実行
+
+  ### 主な実行ステップ
+
+  1.  **SCAツールの選択と設定**:
+      - スキャン対象 (Pythonライブラリ、コンテナイメージのOSパッケージ、ファイルシステム内のライブラリなど) とPMの指示に基づき、使用するSCAツールを決定する。
+        - Python依存関係: `pip-audit`
+        - コンテナイメージ/ファイルシステム/汎用: `Trivy`
+      - スキャン対象のファイル (例: `requirements.txt`, `Dockerfile`, イメージ名) やパスを特定する。
+
+  2.  **スキャンの実行**:
+      - 選択したツールと設定でスキャンを実行する。出力はJSON形式が望ましい。
+      - コマンド例 (詳細は各参照ドキュメントを参照):
+        - `pip-audit -r requirements.txt -f json -o pip-audit-report.json`
+        - `trivy image -f json -o trivy-image-report.json myapp:latest`
+        - `trivy fs --vuln-type library -f json -o trivy-fs-lib-report.json .`
+
+  3.  **結果の解析と評価**:
+      - スキャン結果のレポートファイル (JSON) を読み込み、検出された各脆弱性を抽出する。
+      - 各脆弱性について、パッケージ名、現在のバージョン、脆弱性ID (CVEなど)、修正済みバージョン (FixedVersion)、深刻度 (Severity) などを特定する。
+
+  4.  **脆弱性の報告**:
+      - PMに対して、検出された脆弱性を持つ依存関係を報告する。
+      - 報告には、上記3で特定した情報を含め、特に修正済みバージョンと深刻度を明記する。
+      - GitHub Dependabotが有効な場合は、DependabotからのアラートやPRと関連付けて報告することも有効。
+
+  5.  **修正提案 (アップデート)**:
+      - 脆弱性が検出され、かつ修正済みバージョンが存在する依存関係については、そのバージョンへのアップデートを提案する。
+        - `requirements.txt` や `pyproject.toml` の該当行の変更案を提示する。
+        - `Dockerfile` の場合は、ベースイメージの更新や特定のパッケージ更新コマンドの変更案を提示する。
+      - アップデートに伴う互換性のリスクについて言及し、十分なテストを行うよう促す。
+
+  6.  **CI/CDパイプラインとの連携**:
+      - CI/CDパイプラインでSCAが実行されるようにPMに提案・設定を促す。
+      - 依存関係の更新時や定期的なスキャンで脆弱性が検出された場合、ビルドを失敗させるか警告を出すようにする。
+
+  ### モードの終了
+  SCAの実行、報告、修正提案が一通り完了したと判断した場合、またはPMから指示があった場合に、包括的開発モード (`@mode_development_execution.mdc`) に戻ります。
+
+  ### PMへの確認事項例
+  - 「Pythonの依存関係スキャンには `pip-audit` を使用します。`requirements.txt` のパスは `[パス]` でよろしいですか？」
+  - 「コンテナイメージ `[イメージ名]` のOSパッケージとライブラリの脆弱性スキャンを行いますが、特定の深刻度 (例: HIGH以上) のみ報告でよろしいですか？」
+  - 「Dependabotによる自動PRが作成されていますが、手動でのSCAスキャンと報告も必要ですか？」

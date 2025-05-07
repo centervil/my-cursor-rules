@@ -1,0 +1,57 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+name: Documentation Management Overview
+description: Outlines best practices for documentation management, including recommended structure, automated generation tools, and review processes.
+alwaysApply: true
+content: |
+  ## ドキュメント管理概要
+
+  適切なドキュメント管理は、プロジェクトの理解を助け、メンテナンス性を向上させ、AIエージェントと人間の協調を円滑にします。
+
+  ### 1. 推奨ドキュメント構造
+  プロジェクトの規模や性質に応じて調整が必要ですが、一般的に以下のようなディレクトリ構造が推奨されます:
+  ```
+  docs/
+  ├── project/              # プロジェクト管理ドキュメント (ロードマップ、アーキテクチャ概要など)
+  ├── dev/                  # 開発者向けドキュメント (環境構築、API仕様、各種ガイドなど)
+  ├── guides/               # ユーザーガイド (クイックスタート、チュートリアルなど)
+  └── reference/            # リファレンス資料 (設定リファレンス、CLIツールなど)
+  ```
+  - AIエージェントは、この構造を理解し、関連情報を探したり、新しいドキュメントを適切な場所に配置したりすることが期待されます。
+  - ルールベースのドキュメント (`my-cursor-rules/`など) も、開発者向けドキュメントの一部として明確に位置づけます。
+
+  ### 2. ドキュメント生成の自動化
+  手作業によるドキュメント作成・更新の負荷を軽減し、一貫性を保つために、自動化ツールを活用します。
+  - **Sphinx**: Pythonプロジェクトで広く利用されるドキュメンテーションジェネレータ。reStructuredText形式が主だがMarkdownも利用可。
+  - **MkDocs (with Material theme)**: Markdownベースでモダンなドキュメントサイトを簡単に構築可能。
+  - **docstringsからの自動生成**: Pythonの関数やクラスのdocstringからAPIリファレンスを自動生成する機能 (Sphinxの`sphinx.ext.autodoc`など)。AIエージェントは、コード生成時に詳細なdocstringを記述することが期待されます。
+    ```python
+    def my_function(param1: str, param2: int) -> bool:
+        """
+        この関数の概要説明。
+
+        Args:
+            param1: パラメータ1の説明。
+            param2: パラメータ2の説明。
+
+        Returns:
+            処理結果 (TrueまたはFalse)。
+
+        Raises:
+            ValueError: param2が負の場合。
+        """
+        # ... 関数の実装 ...
+    ```
+
+  ### 3. ドキュメントのレビュープロセス
+  - **ドキュメント専用PR**: コードの変更とは別に、ドキュメントの変更もPull Requestを通じてレビューすることが推奨されます。
+  - **AIエージェントによる更新**: AIエージェントがコード変更を行った際には、関連するドキュメント (README、API仕様、開発ガイドなど) も自律的に更新することが期待されます。
+  - **人間 (PM) によるレビュー**: AIエージェントが更新したドキュメントの内容について、正確性、明確性、網羅性をPMがレビューします。
+  - **AIエージェントのユーザビリティ**: ドキュメントの記述スタイルや構造が、他のAIエージェント (または将来の自分自身) にとっても理解しやすく、情報を見つけやすいか (`@`メンションによる参照のしやすさなど) を考慮します。
+
+  ### 4. 関連ドキュメント・Rule
+  - @Docs/dev-docs/project_management_guide.md#4-ドキュメント管理
+  - (必要に応じて、特定のドキュメンテーションツール利用ガイドRuleを作成)
