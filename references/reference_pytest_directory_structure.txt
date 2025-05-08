@@ -1,0 +1,47 @@
+# Recommended Pytest Directory Structure
+# Source: pytest_best_practices.md (Section 2.1 Directory Structure)
+
+myproject/
+├── .git/                     # Git version control files
+├── .gitignore                # Specifies intentionally untracked files that Git should ignore
+├── src/                      # Main application source code
+│   └── my_package_name/      # Your actual Python package
+│       ├── __init__.py
+│       ├── module_a.py
+│       ├── module_b.py
+│       └── subpackage/
+│           ├── __init__.py
+│           └── module_c.py
+├── tests/                    # Root directory for all tests
+│   ├── conftest.py           # Shared fixtures, hooks for all tests in `tests/` and subdirectories
+│   ├── unit/                 # Unit tests: focus on individual functions/classes in isolation
+│   │   ├── conftest.py       # Optional: fixtures specific to unit tests
+│   │   ├── test_module_a.py
+│   │   └── subpackage/
+│   │       └── test_module_c.py
+│   ├── integration/          # Integration tests: focus on interactions between components/modules
+│   │   ├── conftest.py       # Optional: fixtures specific to integration tests
+│   │   └── test_feature_x_integration.py
+│   ├── e2e/                  # End-to-end tests: simulate full user workflows (less common for libraries)
+│   │   └── test_user_journey.py 
+│   ├── security/             # Security-specific tests
+│   │   ├── test_security_auth.py
+│   │   └── test_security_input_validation.py
+│   └── fixtures/             # Directory for test data files (e.g., JSON, YAML, text files)
+│       ├── sample_user_data.json
+│       └── large_input_file.txt
+├── pytest.ini                # Pytest configuration file (see reference_pytest_ini_example.ini)
+├── pyproject.toml            # Project metadata, build system configuration (PEP 517/518)
+├── requirements.txt          # Main application dependencies
+├── requirements-dev.txt      # Development dependencies (including pytest, pytest-cov, etc.)
+├── README.md                 # Project description
+└── .env.example              # Example environment variables file
+
+# Notes:
+# - `src/my_package_name/` is a common layout for applications/libraries to separate source from tests.
+#   If you have a simpler project, your modules might be at the root.
+# - `tests/unit/` and `tests/integration/` separation is a common best practice.
+# - `tests/e2e/` might be more relevant for web applications or services.
+# - `tests/security/` provides a dedicated place for security-related test cases.
+# - `tests/fixtures/` is a good place to store larger static data files needed by tests.
+#   Small, dynamic data is often better generated within fixtures in `conftest.py` or test files. 
