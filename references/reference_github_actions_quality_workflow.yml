@@ -1,0 +1,97 @@
+# GitHub Actions Workflow for Quality Report Generation
+# Source: project_management_guide.md (section 3.3 CI/CDパイプラインとの統合)
+# Filename in guide: .github/workflows/quality-report.yml
+
+name: Quality Report
+
+on:
+  push:
+    branches: [ main ] # Trigger on pushes to the main branch
+  pull_request:
+    branches: [ main ] # Also trigger on pull requests targeting main
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  quality_report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # To checkout the repository
+      pages: write # To deploy to GitHub Pages (if used)
+      id-token: write # For OIDC token (if needed by deployment tools)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # Specify your Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt # Your main application dependencies
+          pip install -r requirements-dev.txt # Development/testing dependencies (pytest, pylint, coverage etc.)
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=src/ --cov-report=xml:coverage.xml --cov-report=html:htmlcov
+        # Assumes your source code is in 'src/'
+        # Generates XML report (coverage.xml) for processing and HTML report (htmlcov/) for viewing
+
+      - name: Run static analysis (Pylint example)
+        run: |
+          pylint src/ --exit-zero --output-format=json:pylint-report.json || echo "Pylint found issues, but we proceed."
+        # `--exit-zero` ensures the workflow doesn't fail on linting errors if you only want to report them
+        # Alternatively, remove `--exit-zero` to enforce linting standards strictly
+
+      - name: Run static analysis (Flake8 example)
+        run: |
+          flake8 src/ --output-file=flake8-report.txt --exit-zero || echo "Flake8 found issues."
+
+      # Add more steps for other quality tools (e.g., Mypy, Bandit, etc.)
+
+      - name: Generate custom dashboard/report data (example placeholder)
+        run: |
+          echo "Generating dashboard data..."
+          # python scripts/generate_dashboard_data.py # Your custom script to process reports
+          # This script would read coverage.xml, pylint-report.json, etc.
+          # and might produce a combined JSON or HTML file for the dashboard.
+          mkdir -p ./reports/data
+          echo '{"coverage": 0, "pylint_issues": 0}' > ./reports/data/summary.json # Dummy data
+
+      - name: Upload coverage artifact (HTML report)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-report
+          path: htmlcov
+
+      - name: Upload Pylint report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pylint-json-report
+          path: pylint-report.json
+          if-no-files-found: ignore # Optional: ignore if file not found
+
+      - name: Upload Flake8 report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake8-txt-report
+          path: flake8-report.txt
+          if-no-files-found: ignore
+
+      # Example: Deploy HTML reports to GitHub Pages
+      # This requires GitHub Pages to be set up for the repository
+      - name: Deploy HTML coverage report to GitHub Pages
+        if: github.ref == 'refs/heads/main' # Only deploy from main branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./htmlcov # Directory containing the HTML coverage report
+          destination_dir: ./coverage # Subdirectory on gh-pages branch
+          # cname: your.custom.domain.com # Optional: if using a custom domain for Pages
+
+      # Add similar deployment steps for other HTML reports or the main dashboard page if generated 
