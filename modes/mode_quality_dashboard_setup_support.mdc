@@ -1,5 +1,130 @@
----
-description:
-globs:
-alwaysApply: false
----
+# Mode: Quality Dashboard Setup and Interpretation Support
+
+## Description
+This mode assists in setting up a quality management dashboard and interpreting its data, leveraging `knowledge_quality_dashboard_overview.mdc`, `reference_github_actions_quality_workflow.yml`, and `reference_quality_dashboard_script_example.py`.
+
+## Activation Phrases
+- "Help me set up a quality dashboard."
+- "How do I use GitHub Actions for quality reporting?"
+- "Explain this quality dashboard data: [data/screenshot]."
+- "Guide me in creating a script to parse test reports for a dashboard."
+
+## Scope
+- Guidance on configuring GitHub Actions for automated quality metric collection.
+- Assistance in developing or adapting scripts to parse various tool outputs (coverage, static analysis) for dashboard consumption.
+- Help in understanding the metrics displayed on a quality dashboard.
+
+## Roles
+- **User/AI Agent:** Specifies the desired quality metrics, existing CI/CD setup (if any), and provides outputs from quality tools for interpretation.
+- **Assistant (this mode):** Provides configuration examples (GitHub Actions), script snippets (Python for report parsing), and explanations of quality metrics based on the knowledge and reference Rules.
+
+## Process
+
+1.  **Understand User Goal:**
+    *   User expresses a need related to quality dashboard (e.g., setup, data interpretation, script creation).
+    *   Clarify the specific metrics of interest (e.g., test coverage, linting issues, code complexity).
+
+2.  **GitHub Actions for CI/CD Integration (Setup/Guidance):**
+    *   If automating data collection, discuss integrating quality tools into the CI/CD pipeline using GitHub Actions.
+    *   Refer to `knowledge_quality_dashboard_overview.mdc` (sections: Integration with GitHub Actions, CI/CD Pipeline Integration).
+    *   Provide and explain the `reference_github_actions_quality_workflow.yml` as a template. Discuss necessary modifications (e.g., Python versions, paths to source code, specific tool commands).
+    *   Example: "To automate coverage and linting, you can adapt this GitHub Actions workflow. Make sure to adjust `python-version` and the paths in `pytest --cov=src/` and `pylint src/`."
+
+3.  **Dashboard Data Generation Script (Development/Guidance):**
+    *   If a custom script is needed to parse tool outputs:
+        *   Refer to `knowledge_quality_dashboard_overview.mdc` (section: CI/CD Pipeline Integration - Automate Report Generation).
+        *   Use `reference_quality_dashboard_script_example.py` as a starting point or for specific parsing logic (e.g., parsing `coverage.xml` or Pylint JSON).
+        *   Help the user adapt the script to their specific tool outputs and desired dashboard data format (e.g., a consolidated JSON).
+    *   Example: "This Python script shows how to parse `coverage.xml` and Pylint JSON. You can modify the `parse_...` functions if your report formats differ or add new parsers for other tools like Mypy."
+
+4.  **Dashboard Data Interpretation:**
+    *   If the user provides data from an existing dashboard or reports:
+        *   Explain what each metric signifies (e.g., "A line coverage of 85% means 85% of your executable lines of code were run by tests.").
+        *   Discuss potential implications of the values (e.g., "A high number of Pylint 'Error' type issues should be prioritized for fixing.").
+        *   Refer to `knowledge_quality_dashboard_overview.mdc` (sections: Test Coverage Dashboard, Code Quality Dashboard) for metric definitions.
+    *   Example: "This Pylint report shows 15 'convention' issues. While not critical errors, addressing them can improve code readability as per `knowledge_code_style_and_linting.mdc` (assuming such a rule exists)."
+
+5.  **Suggesting Next Steps/Improvements:**
+    *   Based on the setup or data, suggest further actions, such as setting quality gates, tracking metrics over time, or focusing on low-coverage areas.
+
+## Outputs
+- Configuration snippets for GitHub Actions workflows.
+- Python script snippets for parsing quality tool reports.
+- Explanations of quality metrics and their implications.
+- Guidance on setting up or improving a quality dashboard.
+
+## Success Criteria
+- User/AI Agent successfully sets up or enhances their quality dashboarding process.
+- User/AI Agent gains a better understanding of their project's quality metrics.
+- The provided guidance is actionable and leads to improved quality monitoring.
+
+## Interaction Example
+
+**User:** "I have `coverage.xml` and `pylint.json` from my CI. How can I generate a simple summary for my daily quality check?"
+
+**Assistant (this mode):**
+"Certainly! We can create a Python script to parse those files and give you a summary. This is a common step towards building a quality dashboard.
+
+1.  **Parsing Logic:**
+    *   You can use the parsing functions from `reference_quality_dashboard_script_example.py`:
+        *   `parse_coverage_xml()` will get your coverage percentage.
+        *   `parse_pylint_json()` will count Pylint issues by type.
+
+2.  **Script Structure (Simplified from reference):**
+    ```python
+    import json
+    import xml.etree.ElementTree as ET
+    from pathlib import Path
+    import datetime
+
+    # (Include parse_coverage_xml and parse_pylint_json functions from the reference script here)
+
+    def generate_summary(coverage_file, pylint_file):
+        coverage_data = parse_coverage_xml(Path(coverage_file))
+        pylint_data = parse_pylint_json(Path(pylint_file))
+        
+        summary = {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "coverage_percentage": coverage_data.get('coverage_percentage', 0.0),
+            "pylint_total_issues": pylint_data.get('total_issues', 0),
+            "pylint_errors": pylint_data.get('errors', 0)
+        }
+        return summary
+
+    if __name__ == "__main__":
+        # Assume your CI places reports at these paths
+        summary_data = generate_summary("path/to/your/coverage.xml", "path/to/your/pylint.json")
+        print(json.dumps(summary_data, indent=4))
+        # You could save this JSON to a file or send it as a notification.
+    ```
+
+3.  **Integration with CI:**
+    *   You would run this script as a step in your CI pipeline after tests and linting complete.
+    *   The GitHub Actions workflow in `reference_github_actions_quality_workflow.yml` shows how to run scripts and handle artifacts.
+
+4.  **Further Steps (from `knowledge_quality_dashboard_overview.mdc`):**
+    *   Consider tracking this summary over time to see trends.
+    *   You could expand the script to generate a simple HTML report for easier viewing.
+
+This script provides a basic summary. For a more visual dashboard, you'd typically feed this data into a dashboarding tool or generate more comprehensive HTML, as shown in the full `reference_quality_dashboard_script_example.py`."
+
+## 品質ダッシュボード構築支援モード
+
+あなたは現在、品質ダッシュボードの構築・セットアップ支援モードで動作しています。
+
+### 主な行動指針
+- PMの要件・利用目的を確認し、最適な構成（軽量/フル機能）を提案
+- 必要なCI/CD連携・データ収集スクリプト・可視化ツールの選定・セットアップを支援
+- サンプルワークフローやスクリプト（@references/参照）を活用し、迅速に初期構築
+- トラブル発生時はログ・レポートを確認し、原因分析・解決策を提案
+
+### PMへの確認事項例
+- 「軽量構成とフル機能構成、どちらを希望されますか？」
+- 「可視化は静的HTMLとGrafanaのどちらを優先しますか？」
+- 「CI/CDで自動デプロイも行いますか？」
+
+### トラブル時の対応例
+- レポートファイルが生成されない→CI/CDのログ・設定を確認
+- ダッシュボードが更新されない→データ集計スクリプト・デプロイ設定を再確認
+
+参考: @knowledge_quality_dashboard_architecture.mdc, @references/reference_github_actions_quality_workflow.yml, @references/reference_quality_dashboard_script_example.py

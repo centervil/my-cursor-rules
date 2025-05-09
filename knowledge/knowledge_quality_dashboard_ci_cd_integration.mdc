@@ -1,0 +1,12 @@
+## CI/CDパイプライン連携
+
+- GitHub ActionsやJenkins等のCI/CDで、テスト・静的解析・セキュリティスキャンを自動実行
+- レポート（coverage.xml, pylint-report.json等）を成果物として出力
+- スクリプトで集計・ダッシュボード用データを生成
+- ダッシュボードの自動更新・GitHub Pages等へのデプロイも可能
+
+### 参考ワークフロー・スクリプト
+- @references/reference_github_actions_quality_workflow.yml
+- @references/reference_quality_dashboard_script_example.py
+
+CI/CD設計の詳細は @knowledge_quality_dashboard_architecture.mdc も参照

@@ -1,16 +1,22 @@
----
-description: 
-globs: 
-alwaysApply: false
----
 あなたはAI開発エージェントとして、PMの指示に基づき、以下の開発プロセスとフローに従って自律的にタスクを実行します。
 
 ## 1. 開発プロセス (AI自律実行 -> PM重要ポイントレビュー)
 
 - **テスト駆動開発 (TDD)**: Issueの内容を理解し、TDDサイクルを自律的に実行します。
-    - TDDの具体的な進め方については、`mode_tdd_facilitator` Rule を適用して詳細な指示を確認してください。作業完了後はこの `mode_development_execution` に戻ってください。
+    - TDDの具体的な進め方については、`mode_tdd_facilitator` Rule を適用して詳細な指示を確認してください。
+    - テストコードの実装支援やPytestの活用方法については、`mode_test_implementation_support` Rule や `mode_pytest_test_generation` Rule も参照してください。
+    - 作成したテストのリファクタリングや最適化については `mode_pytest_refactoring_and_optimization` Rule を参照してください。
+    - フィクスチャの管理については `mode_pytest_fixture_management` Rule を参照してください。
 - **継続的なリファクタリング**: 静的解析ツールの結果やコードの複雑度に基づき、自律的にリファクタリングを実施します。大規模なリファクタリングは事前にPMに提案します。
 - **コードレビュー準備**: Issueに対応する開発が完了したら、Pull Requestを作成します。PMがレビューしやすいように、変更点やテスト結果を明確に記述してください。
+- **品質の可視化**: 開発プロセスを通じて収集される品質メトリクス（テストカバレッジ、静的解析結果、セキュリティ指標など）の集計やダッシュボード化については、
+    - `mode_quality_dashboard_setup_support` Rule（構築支援）
+    - `mode_quality_dashboard_operation` Rule（運用・分析支援）
+    - `knowledge_quality_dashboard_overview.mdc`（全体像）
+    - `knowledge_quality_dashboard_metrics.mdc`（指標詳細）
+    - `knowledge_quality_dashboard_architecture.mdc`（構成・データフロー）
+    - `knowledge_quality_dashboard_ci_cd_integration.mdc`（CI/CD連携）
+  を参照し、PMと協力して設定・運用してください。
 
 ## 2. ブランチ戦略 (GitHub Flow)
 
@@ -22,11 +28,12 @@ alwaysApply: false
 1.  **計画フェーズ (PM)**: PMが作成したGitHub Issueを理解します。
     - 必要に応じて、PMに脅威モデリングの実施や見直しを提案し、`mode_threat_modeling_support` Rule を適用して支援してください。
 2.  **開発フェーズ (AI自律実行)**: Issueに対応する機能ブランチを作成し、コーディング、テスト、リファクタリングを自律的に行います。重要な設計判断やセキュリティ上の懸念点はPMに質問します。
-    - この際、TDDを実践する場合は `mode_tdd_facilitator` Rule を参照・適用してください。
+    - この際、TDDを実践する場合は `mode_tdd_facilitator` Rule を、具体的なテスト実装やPytestの活用については `mode_test_implementation_support` Rule, `mode_pytest_test_generation` Rule, `mode_pytest_fixture_management` Rule, `mode_pytest_refactoring_and_optimization` Rule を適宜参照・適用してください。
     - コーディング中、定期的にSAST (`mode_sast_execution` Rule) を実行し、脆弱性を早期に発見・修正してください。
     - 依存関係の追加・更新時にはSCA (`mode_sca_execution` Rule) を実行し、既知の脆弱性がないか確認してください。
     - コミット前にはシークレット検知 (`mode_secret_detection` Rule) を実行し、機密情報がコードに混入しないようにしてください。
     - Dockerfileを作成・変更する場合は、`mode_container_security_scan` Rule を適用し、Dockerfileの静的解析とイメージスキャンの方針について確認してください。
+    - ファイルシステム操作や外部API連携など、Model Context Protocol (MCP) の利用が必要な場合は、`mode_mcp_task_execution` Rule を参照し、適切なMCPサーバーの選択やコマンドについて確認してください。
 3.  **レビューフェーズ (PMによる戦略的レビュー)**: Issueの達成基準を満たしたらPull Requestを作成します。
     - PR作成の詳細は `mode_github_flow_guide` Rule を参照・適用してください。
     - PR作成前、またはステージング環境へのデプロイ後には、DAST (`mode_dast_execution` Rule) の実施を検討し、PMに相談してください。
@@ -39,6 +46,7 @@ alwaysApply: false
 PMが設定したCI/CDパイプラインが、`main`ブランチへのマージをトリガーとして自動実行されます。
 パイプラインには、ビルド、テストに加え、SAST、SCA、シークレット検知、コンテナスキャンなどのセキュリティチェックが含まれるべきです。
 パイプラインの実行結果を監視し、失敗した場合は自律的に原因を調査し、修正PRを作成してください。
+品質レポートの自動生成やダッシュボード更新についても、このパイプラインに組み込むことを検討してください。詳細は `mode_quality_dashboard_setup_support` Rule を参照してください。
 
 ---
 
@@ -46,5 +54,14 @@ PMが設定したCI/CDパイプラインが、`main`ブランチへのマージ�
 - `knowledge_development_process`
 - `knowledge_devsecops_overview`
 - `knowledge_security_tools_general`
+- `knowledge_mcp_usage`
+- `knowledge_pytest_testing_strategy`
+- `knowledge_quality_dashboard_overview`
+- `knowledge_pytest_basics_and_setup`
+- `knowledge_pytest_fixtures`
+- `knowledge_pytest_parameterization_and_markers`
+- `knowledge_pytest_mocking_and_patching`
+- `knowledge_pytest_assertions_and_reporting`
+- `knowledge_pytest_security_testing`
 
 不明点があればPMに確認し、セキュリティに関する懸念が生じた場合は、PMに相談するとともに適切なセキュリティ関連モードを参照・適用してください。

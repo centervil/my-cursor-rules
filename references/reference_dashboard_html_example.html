@@ -1,0 +1,34 @@
+<!-- Static HTML Dashboard Example -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>プロジェクト品質ダッシュボード</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>プロジェクト品質ダッシュボード</h1>
+    <p>最終更新: <span id="last-updated">Loading...</span></p>
+  </header>
+  <div class="dashboard-grid">
+    <div class="card">
+      <h2>コードカバレッジ</h2>
+      <span id="total-coverage">--.-%</span>
+      <canvas id="coverage-trend-chart"></canvas>
+    </div>
+    <div class="card">
+      <h2>コード品質スコア</h2>
+      <span id="code-quality-score">-.--</span>
+      <canvas id="code-quality-chart"></canvas>
+    </div>
+    <div class="card">
+      <h2>セキュリティ脆弱性</h2>
+      <div>SAST: <span id="sast-high">-</span> High, <span id="sast-medium">-</span> Med</div>
+      <canvas id="vulnerability-trend-chart"></canvas>
+    </div>
+  </div>
+  <script src="dashboard.js"></script>
+</body>
+</html>
+<!-- 詳細な実装例・拡張はquality_dashboard_guide.md参照 --> 

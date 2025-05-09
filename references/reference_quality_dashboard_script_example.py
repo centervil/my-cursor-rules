@@ -1,4 +1,5 @@
 # Python Script Example for Generating Quality Dashboard Data
+# 品質ダッシュボード用データ生成スクリプト例
 # Source: project_management_guide.md (section 3.3 CI/CDパイプラインとの統合)
 # Filename in guide: scripts/generate_dashboard.py
 
@@ -18,63 +19,14 @@ OUTPUT_JSON_FILE = OUTPUT_DIR / "dashboard_data.json"
 OUTPUT_HTML_FILE = OUTPUT_DIR / "quality_dashboard.html"
 
 def parse_coverage_xml(file_path: Path) -> dict:
-    """Parses coverage.xml to extract key coverage metrics."""
-    data = {"coverage_percentage": 0.0, "lines_total": 0, "lines_covered": 0, "branches_total": 0, "branches_covered": 0}
-    try:
-        if not file_path.exists():
-            print(f"Warning: Coverage file not found: {file_path}")
-            return data
-        
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-        
-        data["coverage_percentage"] = float(root.get("line-rate", 0)) * 100
-        # More detailed parsing can be added here for lines, branches, etc.
-        # For simplicity, focusing on the main percentage.
-        packages = root.find('packages')
-        if packages is not None:
-            lines_total, lines_covered = 0, 0
-            branches_total, branches_covered = 0,0
-            for package in packages.findall('package'):
-                for class_element in package.find('classes').findall('class'):
-                    lines = class_element.find('lines')
-                    if lines is not None:
-                        for line in lines.findall('line'):
-                            lines_total += 1
-                            if line.get('hits') != '0':
-                                lines_covered += 1
-                            # Branch coverage requires more complex parsing of condition-coverage attribute
-            data["lines_total"] = lines_total
-            data["lines_covered"] = lines_covered
-            # Branch parsing would go here
-
-    except Exception as e:
-        print(f"Error parsing coverage XML: {e}")
-    return data
+    # coverage.xmlからカバレッジ情報を抽出
+    # ...（実装例は省略）
+    return {"coverage": 85.0}
 
 def parse_pylint_json(file_path: Path) -> dict:
-    """Parses pylint JSON report to count issues by type."""
-    data = {"total_issues": 0, "errors": 0, "warnings": 0, "refactor": 0, "convention": 0}
-    try:
-        if not file_path.exists():
-            print(f"Warning: Pylint report not found: {file_path}")
-            return data
-            
-        with open(file_path, 'r') as f:
-            issues = json.load(f)
-        data["total_issues"] = len(issues)
-        for issue in issues:
-            if issue["type"].lower() == "error":
-                data["errors"] += 1
-            elif issue["type"].lower() == "warning":
-                data["warnings"] += 1
-            elif issue["type"].lower() == "refactor":
-                data["refactor"] += 1
-            elif issue["type"].lower() == "convention":
-                data["convention"] += 1
-    except Exception as e:
-        print(f"Error parsing Pylint JSON: {e}")
-    return data
+    # pylint-report.jsonから警告・エラー数を集計
+    # ...（実装例は省略）
+    return {"pylint_score": 9.2, "errors": 1, "warnings": 3}
 
 def parse_flake8_txt(file_path: Path) -> dict:
     """Parses flake8 text report to count total issues."""
@@ -150,41 +102,18 @@ def generate_html_report(dashboard_data: dict, output_file: Path):
         print(f"Error generating HTML report: {e}")
 
 def main():
-    """Main function to generate dashboard data and HTML report."""
-    # Ensure input directory exists for dummy file creation if needed
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    # Create dummy report files if they don't exist for standalone script execution
-    if not COVERAGE_XML_FILE.exists():
-        with open(COVERAGE_XML_FILE, 'w') as f:
-            f.write('<coverage line-rate="0.85" version="6.0"><packages><package name="src" line-rate="0.85"><classes><class name="module.py" filename="src/module.py" line-rate="0.85"><lines><line number="1" hits="1"/><line number="2" hits="0"/></lines></class></classes></package></packages></coverage>')
-    if not PYLINT_JSON_FILE.exists():
-        with open(PYLINT_JSON_FILE, 'w') as f:
-            json.dump([{"type": "error", "message": "dummy error"}], f)
-    if not FLAKE8_TXT_FILE.exists():
-        with open(FLAKE8_TXT_FILE, 'w') as f:
-            f.write("src/module.py:1:1: E001 dummy flake8 error\n")
-
-    coverage_data = parse_coverage_xml(COVERAGE_XML_FILE)
-    pylint_data = parse_pylint_json(PYLINT_JSON_FILE)
-    flake8_data = parse_flake8_txt(FLAKE8_TXT_FILE)
-
-    dashboard_data = {
-        "generation_timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-        "coverage": coverage_data,
-        "pylint": pylint_data,
-        "flake8": flake8_data,
-        # Add data from other tools here (e.g., Mypy, Bandit)
-    }
-
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    try:
-        with open(OUTPUT_JSON_FILE, 'w') as f:
-            json.dump(dashboard_data, f, indent=4)
-        print(f"Dashboard data JSON generated: {OUTPUT_JSON_FILE}")
-    except Exception as e:
-        print(f"Error writing dashboard JSON: {e}")
+    # レポートファイルのパス
+    coverage = parse_coverage_xml(COVERAGE_XML_FILE)
+    pylint = parse_pylint_json(PYLINT_JSON_FILE)
+    # ...他ツールの集計も同様に
+    # ダッシュボード用データを出力
+    dashboard_data = {"coverage": coverage, "pylint": pylint}
+    with open(OUTPUT_JSON_FILE, "w") as f:
+        json.dump(dashboard_data, f, indent=2)
+    print(f"Dashboard data JSON generated: {OUTPUT_JSON_FILE}")
         
     generate_html_report(dashboard_data, OUTPUT_HTML_FILE)
 
 if __name__ == "__main__":
-    main() 
+    main()
+# 詳細な実装例・拡張はquality_dashboard_guide.md参照 

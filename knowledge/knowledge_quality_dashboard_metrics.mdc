@@ -1,0 +1,23 @@
+## 品質・セキュリティ指標の詳細
+
+### コード品質指標
+- コードカバレッジ率（全体・モジュール別）
+- 静的解析（警告・エラー数、複雑度、技術的負債）
+- コード複雑度
+- 技術的負債（TODO/FIXME、重複コード等）
+
+### セキュリティ指標
+- SAST（Bandit, Semgrep等）: 検出脆弱性数（深刻度別）
+- DAST（OWASP ZAP等）: 検出脆弱性数
+- SCA（pip-audit, Trivy等）: 依存脆弱性数
+- シークレット検知: コード内シークレット数
+- コンテナスキャン: イメージ脆弱性数
+
+### プロセス品質指標
+- ブランチ寿命、PRサイズ、ビルド成功率、テスト実行時間
+- AIエージェント自律性指標（PM介入回数、AI提案数等）
+
+### 成果品質指標
+- バグ発生率・解決率、機能完了率、パフォーマンス指標
+
+各指標の収集・可視化例は @knowledge_quality_dashboard_architecture.mdc, @references/reference_github_actions_quality_workflow.yml 参照。

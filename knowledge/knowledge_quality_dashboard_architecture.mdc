@@ -1,0 +1,17 @@
+## 品質ダッシュボードの構成・アーキテクチャ
+
+### 1. 基本アーキテクチャ
+- データ収集（CI/CDでレポート生成）
+- データ保存（JSON/CSV/DB等）
+- 可視化（静的HTML, Chart.js, Grafana等）
+
+### 2. 構成パターン
+- 軽量: GitHub Actions + JSON/CSV + 静的HTML
+- フル機能: Jenkins/GitHub Actions + DB + Grafana/カスタムWeb
+
+### 3. データフロー例
+- CIでテスト/静的解析/セキュリティスキャン→レポート出力
+- スクリプトで集計・整形→ダッシュボード用データ生成
+- 可視化ツールでダッシュボード表示
+
+詳細例は @references/reference_quality_dashboard_script_example.py, @references/reference_dashboard_html_example.html, @references/reference_grafana_dashboard_setup.md 参照。
