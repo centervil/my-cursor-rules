@@ -3,3 +3,123 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Pytest Mocking and Patching Techniques
+
+## Description
+This rule covers techniques for mocking and patching dependencies in Pytest, primarily using Python's built-in `unittest.mock` library (including `MagicMock`, `Mock`, `patch`) and Pytest's `monkeypatch` fixture. This is essential for isolating units of code during testing. Based on `pytest_best_practices.md`.
+
+## Scope
+- Isolating code under test by replacing its dependencies with controlled substitutes.
+- Testing interactions with dependencies (e.g., verifying calls, arguments, return values).
+- Guiding AI agents in applying appropriate mocking strategies.
+
+## Key Concepts
+
+### 1. Why Mock?
+- **Isolate Unit Under Test:** Test a piece of code in isolation from its external dependencies (e.g., databases, external APIs, other services, complex objects).
+- **Control Behavior:** Force dependencies to behave in specific ways (e.g., return specific data, simulate errors) to test different code paths.
+- **Speed and Reliability:** Avoid slow or unreliable external services in unit tests.
+- **Test Interactions:** Verify that the code under test interacts with its dependencies as expected.
+
+### 2. `unittest.mock` (Python's Standard Mocking Library)
+Pytest integrates seamlessly with `unittest.mock`.
+- **`Mock` and `MagicMock`:**
+    - `Mock`: A flexible object that can replace other objects. It records calls made to it.
+    - `MagicMock`: A subclass of `Mock` that pre-configures most magic methods (e.g., `__str__`, `__len__`) to also be `MagicMock` instances. Generally preferred unless you need very specific non-magic behavior.
+    - **Key Attributes/Methods:**
+        - `return_value`: Set the value the mock should return when called.
+        - `side_effect`: Define more complex behavior, like raising an exception or returning different values on subsequent calls.
+        - `assert_called()`, `assert_called_once()`, `assert_called_with(...)`, `assert_any_call(...)`: Verify how the mock was called.
+        - `call_args`, `call_args_list`: Inspect the arguments with which the mock was called.
+- **`patch` (decorator/context manager):**
+    - Temporarily replaces an object in a specific scope with a `Mock` or `MagicMock` instance.
+    - Useful for mocking objects within a module or class for the duration of a test.
+    - Can be used as a decorator (`@patch(...)`) or a context manager (`with patch(...):`).
+
+- **Example (Conceptual, see `reference_pytest_mocking_example.py` for more concrete code that was previously generated based on `project_management_guide.md`):
+  ```python
+  from unittest.mock import MagicMock, patch
+  import pytest
+
+  # Assume my_module.py has:
+  # class ExternalService:
+  #     def get_data(self, item_id): # pragma: no cover
+  #         # ... actual call to external service ...
+  #         raise NotImplementedError
+  # 
+  # def process_item(item_id, service):
+  #     data = service.get_data(item_id)
+  #     return f"Processed: {data}"
+
+  def test_process_item_with_mock_object():
+      mock_service = MagicMock() # Create a mock object
+      mock_service.get_data.return_value = "mocked_data_for_item_123"
+      
+      # from my_module import process_item # Assuming process_item is imported
+      # result = process_item(123, mock_service)
+      # assert result == "Processed: mocked_data_for_item_123"
+      mock_service.get_data.assert_called_once_with(123)
+
+  @patch('my_module.ExternalService') # Target the class where it's defined or imported
+  def test_process_item_with_patch_decorator(MockedExternalService):
+      mock_instance = MockedExternalService.return_value # The instance created when ExternalService() is called
+      mock_instance.get_data.return_value = "data_from_patched_service"
+      
+      # from my_module import process_item, ExternalService
+      # real_service_instance_if_needed_but_here_mocked = ExternalService() # This will be a mock
+      # result = process_item(456, real_service_instance_if_needed_but_here_mocked)
+      # assert result == "Processed: data_from_patched_service"
+      mock_instance.get_data.assert_called_once_with(456)
+  ```
+
+### 3. Pytest `monkeypatch` Fixture
+- **Purpose:** Provides a way to safely modify or replace attributes, dictionary items, or environment variables for the duration of a test.
+- **Key Methods:**
+    - `setattr(target, name, value, raising=True)`: Set an attribute on an object.
+    - `delattr(target, name, raising=True)`: Delete an attribute.
+    - `setitem(dic, key, value)`: Set an item in a dictionary.
+    - `delitem(dic, key, raising=True)`: Delete an item from a dictionary.
+    - `setenv(name, value, prepend=False)`: Set an environment variable.
+    - `delenv(name, raising=True)`: Delete an environment variable.
+    - `syspath_prepend(path)`: Add a path to the beginning of `sys.path`.
+- Changes are automatically undone after the test finishes.
+- **Example (Conceptual, see `reference_pytest_mocking_example.py`):
+  ```python
+  import pytest
+
+  # Assume my_config_module.py has:
+  # SETTINGS = {"feature_flag": False}
+  # def is_feature_enabled():
+  #     return SETTINGS["feature_flag"]
+
+  def test_feature_when_enabled(monkeypatch):
+      # from my_config_module import is_feature_enabled, SETTINGS # Assuming import
+      # monkeypatch.setitem(SETTINGS, "feature_flag", True)
+      # assert is_feature_enabled() is True
+      pass # Placeholder
+
+  def test_another_module_function(monkeypatch):
+      # import another_module # Assuming import
+      def mock_utility_function(*args, **kwargs):
+          return "mocked_utility_output"
+      # monkeypatch.setattr(another_module, "utility_function_name", mock_utility_function)
+      # result = another_module.function_that_uses_utility()
+      # assert result == "expected_based_on_mocked_utility_output"
+      pass # Placeholder
+  ```
+
+### 4. Verifying Mock Interactions
+- It's crucial not just to provide return values but also to verify that the code under test interacted with the mock as expected.
+- Use assertion methods like `assert_called_once_with()`, `call_count`, etc.
+- AI agents should be guided to include these verifications in generated tests.
+
+## Outputs
+- Unit tests that are well-isolated from external dependencies.
+- Robust tests that can verify interactions with collaborators.
+- More reliable and faster test suites.
+
+## Success Criteria
+- AI agents correctly identify dependencies that need mocking for effective unit testing.
+- AI agents choose the appropriate mocking technique (`unittest.mock.patch`, `MagicMock`, `monkeypatch`) for the situation.
+- Generated tests include assertions about how mocks were used (e.g., call counts, arguments).
+- Mocks are configured to simulate various scenarios, including error conditions.

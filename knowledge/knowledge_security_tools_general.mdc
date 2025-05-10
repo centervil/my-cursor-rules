@@ -3,3 +3,51 @@ description:
 globs:
 alwaysApply: false
 ---
+name: Security Tools General Overview
+description: Provides a general overview of various security tools and activities like SAST, DAST, SCA, Secret Management, and Container Security. Detailed usage should be in specific reference documents.
+alwaysApply: true
+content: |
+  ## セキュリティツールと活動の概要
+
+  DevSecOpsを実践する上で、様々なセキュリティツールと活動が重要になります。ここでは主要なものとその目的、代表的な技術スタックの概要を説明します。詳細な利用方法は各参照ドキュメントを参照してください。
+
+  ### 1. 静的アプリケーションセキュリティテスト (SAST)
+  - **目的**: ソースコードを解析し、コーディングレベルの脆弱性を検出します。
+  - **技術スタック例**: Bandit (Python), Semgrep (多言語)
+  - **詳細**: @references/sast_bandit_usage.md, @references/sast_semgrep_usage.md
+
+  ### 2. 動的アプリケーションセキュリティテスト (DAST)
+  - **目的**: 実行中のアプリケーションに外部からアクセスし、動作環境での脆弱性を検出します。
+  - **技術スタック例**: OWASP ZAP
+  - **詳細**: @references/dast_owasp_zap_usage.md
+
+  ### 3. ソフトウェアコンポジション解析 (SCA)
+  - **目的**: プロジェクトの依存ライブラリに含まれる既知の脆弱性 (CVE) を検出します。
+  - **技術スタック例**: pip-audit (Python), Trivy (コンテナ/汎用), GitHub Dependabot
+  - **詳細**: @references/sca_pip_audit_usage.md, @references/sca_trivy_usage.md
+
+  ### 4. シークレット管理
+  - **目的**: APIキーなどの機密情報がコードにハードコードされるのを防ぎ、安全に管理します。
+  - **検知ツール例**: detect-secrets
+  - **管理方法**: 環境変数, .envファイル, 専用シークレット管理サービス
+  - **詳細**: @references/secrets_detect_secrets_usage.md
+
+  ### 5. コンテナセキュリティ
+  - **目的**: Dockerイメージの脆弱性スキャンと、Dockerfileのベストプラクティスを適用します。
+  - **技術スタック例**: Trivy, Docker Scout (スキャナ), Hadolint (Dockerfile静的解析)
+  - **詳細**: @references/sca_trivy_usage.md (イメージスキャン部分), @references/container_hadolint_usage.md
+
+  ### 6. 脅威モデリング
+  - **目的**: アプリケーションの潜在的な脅威を特定し、対策を計画します。(PM主導、AI支援)
+  - **AI支援内容**: 情報収集、図の作成支援、ドキュメント作成支援など。
+  - **関連モード**: @mode_threat_modeling_support.mdc
+
+  ### 7. CI/CDパイプラインへのセキュリティ統合
+  - **目的**: 開発パイプラインに上記のようなセキュリティチェックを自動的に組み込みます。
+  - **技術スタック例**: GitHub Actions
+  - **AIの役割**: パイプライン実行、結果解釈・報告、失敗時対応。
+
+  ### 8. インシデント対応
+  - **目的**: セキュリティインシデント発生時の迅速かつ効果的な対応プロセスの定義。(PM主導、AI支援)
+  - **AI支援内容**: ログ分析支援、情報収集、報告書作成支援など。
+  - **関連モード**: @mode_incident_response_support.mdc

@@ -3,3 +3,133 @@ description:
 globs:
 alwaysApply: false
 ---
+# Mode: Pytest Test Generation Assistant
+
+## Description
+This mode assists in generating Pytest test cases (unit, integration, security) for specified functions, modules, or features. It applies the AAA pattern, suggests appropriate fixtures, parameterization, markers, and helps in creating security-focused tests, drawing upon all `knowledge_pytest_*.mdc` rules.
+
+## Activation Phrases
+- "Generate Pytest tests for this function: [code snippet/function name]."
+- "Help me write unit tests for `my_module.py`."
+- "Create integration tests for the user login flow."
+- "Suggest Pytest security tests for input validation of this API endpoint: [details]."
+- "How to test [scenario] using Pytest? Apply best practices."
+
+## Scope
+- Generating boilerplate for Pytest test functions and classes.
+- Structuring tests according to the AAA pattern (`knowledge_pytest_basics_and_setup.mdc`).
+- Advising on and incorporating fixtures (`knowledge_pytest_fixtures.mdc`).
+- Implementing parameterization for comprehensive scenario coverage (`knowledge_pytest_parameterization_and_markers.mdc`).
+- Applying relevant markers (e.g., `@pytest.mark.integration`, `@pytest.mark.slow`, `@pytest.mark.security`) as per `knowledge_pytest_parameterization_and_markers.mdc` and `pytest.ini` definitions.
+- Assisting in drafting security test cases (`knowledge_pytest_security_testing.mdc`).
+- Guiding on assertions, exception, and warning handling (`knowledge_pytest_assertions_and_reporting.mdc`).
+- Recommending mocking strategies where appropriate (`knowledge_pytest_mocking_and_patching.mdc`).
+
+## Roles
+- **User/AI Agent (Requesting Test Generation):** Provides the code to be tested (or a description of it), the testing objective (e.g., unit test, test specific vulnerability), and any known requirements or dependencies.
+- **Assistant (this mode):** Generates Pytest code, suggests structures, explains choices, and references relevant knowledge rules for deeper understanding.
+
+## Process
+
+1.  **Understand the Target and Objective:**
+    *   Identify the specific function, class, module, or feature to be tested.
+    *   Clarify the type of test desired (e.g., unit, integration, security, specific scenario).
+    *   Gather context: What are the inputs, outputs, expected behaviors, dependencies?
+
+2.  **Determine Test Structure and Location:**
+    *   Advise on the correct test file name and location based on `knowledge_pytest_basics_and_setup.mdc` (e.g., `tests/unit/test_module.py`, `tests/security/test_feature_vulns.py`).
+
+3.  **Apply AAA Pattern for Each Test Case:**
+    *   For each scenario to be tested:
+        *   **Arrange:** Identify necessary setup. This might involve:
+            *   Preparing input data.
+            *   Initializing objects.
+            *   Suggesting or using existing fixtures (from `conftest.py` or local) for common setups (e.g., db connections, API clients) - refer to `knowledge_pytest_fixtures.mdc`.
+            *   Setting up mocks for external dependencies if it's a unit test - refer to `knowledge_pytest_mocking_and_patching.mdc`.
+        *   **Act:** Call the function/method under test with the arranged inputs.
+        *   **Assert:** Define assertions to verify the outcome.
+            *   Use plain `assert` statements.
+            *   For expected exceptions, use `pytest.raises`.
+            *   For expected warnings, use `pytest.warns`.
+            *   Refer to `knowledge_pytest_assertions_and_reporting.mdc`.
+
+4.  **Incorporate Parameterization and Markers (If Applicable):**
+    *   If multiple input values or conditions need testing for the same logic, suggest `@pytest.mark.parametrize` - refer to `knowledge_pytest_parameterization_and_markers.mdc`.
+    *   Apply appropriate markers (e.g., `@pytest.mark.integration`, `@pytest.mark.slow`, `@pytest.mark.security`) as per `knowledge_pytest_parameterization_and_markers.mdc` and `pytest.ini` definitions.
+
+5.  **Address Security Considerations (If a security test or relevant):**
+    *   If the objective is security testing, or if the feature has security implications:
+        *   Generate tests for common vulnerabilities (input validation, authN/Z) based on `knowledge_pytest_security_testing.mdc`.
+        *   Use security-specific naming conventions.
+        *   Suggest parameterizing with malicious inputs.
+
+6.  **Generate Test Code Snippet:**
+    *   Provide the Pytest code incorporating the above aspects.
+    *   Include necessary imports (e.g., `pytest`, the module under test, `unittest.mock`).
+
+7.  **Explain and Guide:**
+    *   Briefly explain the generated test structure, fixture usage, mocking strategy, etc.
+    *   Point to relevant knowledge rules for more detailed information.
+
+## Outputs
+- Pytest test code skeletons or complete test functions/classes.
+- Suggestions for fixture usage, parameterization, and markers.
+- Guidance on how to structure tests according to best practices.
+
+## Success Criteria
+- The generated/guided Pytest code is clear, correct, and follows established best practices from the knowledge rules.
+- The user/AI agent can effectively use the output to build a comprehensive test suite.
+- Security aspects are appropriately considered in test generation where relevant.
+
+## Interaction Example
+
+**User:** "Generate a Pytest unit test for this Python function. It should handle negative numbers by raising a ValueError.
+```python
+# in my_calculator.py
+def calculate_square_root(number):
+    if number < 0:
+        raise ValueError("Input cannot be negative")
+    return number ** 0.5
+```
+Also, test it with a few positive numbers."
+
+**Assistant (this mode):**
+"Okay, I can help you generate Pytest unit tests for `calculate_square_root` from `my_calculator.py`. We'll cover the ValueError for negative inputs and use parameterization for positive inputs.
+
+Here's a suggested test structure for `tests/unit/test_my_calculator.py`:
+
+```python
+# tests/unit/test_my_calculator.py
+import pytest
+from my_calculator import calculate_square_root # Assuming your file is my_calculator.py
+
+def test_calculate_square_root_negative_input_raises_valueerror():
+    # Arrange: No specific arrangement needed beyond the input
+    # Act & Assert: Use pytest.raises to check for ValueError
+    with pytest.raises(ValueError, match="Input cannot be negative"):
+        calculate_square_root(-1)
+    with pytest.raises(ValueError, match="Input cannot be negative"):
+        calculate_square_root(-100)
+
+@pytest.mark.parametrize("test_input, expected_output", [
+    (0, 0.0),
+    (1, 1.0),
+    (4, 2.0),
+    (9, 3.0),
+    (2, 1.4142135623730951) # Example with a non-perfect square
+])
+def test_calculate_square_root_positive_inputs(test_input, expected_output):
+    # Arrange: Inputs are parameterized
+    # Act
+    result = calculate_square_root(test_input)
+    # Assert: Use pytest.approx for floating point comparisons if necessary
+    assert result == pytest.approx(expected_output)
+
+```
+
+**Explanation:**
+*   **`test_calculate_square_root_negative_input_raises_valueerror`**: This test uses `pytest.raises(ValueError)` to ensure that when `calculate_square_root` is called with a negative number, it correctly raises a `ValueError`. The `match` argument checks if the exception message is as expected (see `knowledge_pytest_assertions_and_reporting.mdc`).
+*   **`test_calculate_square_root_positive_inputs`**: This test uses `@pytest.mark.parametrize` to run the same test logic for multiple positive inputs and their expected square roots. This makes the test suite concise and comprehensive for valid inputs (see `knowledge_pytest_parameterization_and_markers.mdc`). We use `pytest.approx` for comparing floating-point numbers due to potential precision issues.
+*   **Structure:** These tests would typically go into `tests/unit/test_my_calculator.py` following the guidelines in `knowledge_pytest_basics_and_setup.mdc`.
+
+This covers the scenarios you mentioned. Let me know if you need tests for other aspects!"

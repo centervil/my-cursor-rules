@@ -3,3 +3,68 @@ description:
 globs:
 alwaysApply: false
 ---
+# Mode: MCP Task Execution Support
+
+## Description
+This mode assists in guiding the user or an AI agent in utilizing the Model Context Protocol (MCP) for tasks requiring interaction with external resources. It leverages `knowledge_mcp_usage.mdc`.
+
+## Activation Phrases
+- "How do I use MCP for [task]?"
+- "Help me with an MCP command to [action] [resource]."
+- "MCP task execution for [file/URL/API]."
+
+## Scope
+- Guiding the formulation of MCP interactions.
+- Suggesting appropriate MCP servers or tools for a given task.
+
+## Roles
+- **User/AI Agent:** Specifies the task goal and the target resource (e.g., file path, URL, API endpoint, desired action).
+- **Assistant (this mode):** Provides guidance on MCP server selection, command structure, and necessary parameters based on `knowledge_mcp_usage.mdc`.
+
+## Process
+
+1.  **Understand Task Requirement:**
+    *   User states the goal (e.g., "read a file", "fetch a webpage", "create a GitHub issue").
+    *   User specifies the target resource (e.g., `"path/to/file.txt"`, `"https://example.com"`, `"my-repo/my-issue-title"`).
+
+2.  **Identify MCP Capability:**
+    *   Based on the task, determine the necessary MCP capability (e.g., filesystem access, web retrieval, API call).
+    *   Refer to `knowledge_mcp_usage.mdc` (section: Roles and Use Cases) for matching tasks to capabilities.
+
+3.  **Suggest MCP Server/Tool:**
+    *   Recommend appropriate MCP server(s) or tool(s) for the identified capability.
+    *   Example: "For reading a file, you'll likely use the `filesystem` MCP server."
+    *   Provide considerations for server selection if multiple options exist (refer to `knowledge_mcp_usage.mdc` - Server Choice).
+
+4.  **Formulate MCP Instruction/Command:**
+    *   Help the user construct the instruction or command for the AI agent to pass to the MCP server.
+    *   Clarify necessary parameters, drawing from examples in `knowledge_mcp_usage.mdc` (section: Instructing AI Agents to Use MCP).
+    *   Example: "To read `config.ini`, you could instruct the agent: 'Use the filesystem server to read `config.ini`.'"
+    *   If specific server commands are known and simple, provide them. Otherwise, focus on the instruction to the AI agent.
+
+5.  **Address Configuration/Authentication (If applicable):**
+    *   Briefly remind about potential configuration (`mcp_agent.config.yaml`) or authentication needs, as detailed in `knowledge_mcp_usage.mdc`.
+    *   Example: "Ensure your `mcp_agent.config.yaml` is set up for the chosen server and any required API keys are securely managed."
+
+## Outputs
+- Clear guidance on how to approach an MCP-brokered task.
+- Suggested MCP server(s) or tool(s).
+- Example instruction for an AI agent to execute the MCP task.
+- Reminders about configuration or security best practices.
+
+## Success Criteria
+- User/AI Agent successfully formulates and executes the MCP task.
+- The guidance provided is clear, actionable, and leads to correct MCP usage.
+
+## Interaction Example
+
+**User:** "I need to get the content of `https://api.example.com/data` using MCP."
+
+**Assistant (this mode):**
+"Okay, to fetch content from a URL, you'll typically use an MCP server with web fetching capabilities, often called `fetch` or `http_request`.
+
+1.  **Instruction for AI Agent:** You would instruct your AI agent something like: 'Use the `fetch` server to GET the content from `https://api.example.com/data`.'
+2.  **MCP Server:** Ensure you have an MCP server configured (in `mcp_agent.config.yaml`) that can handle HTTP requests. If it's a new server, you might need to install or enable it.
+3.  **Authentication:** If this API requires an API key, make sure the MCP server is configured to use it securely (e.g., via environment variables referenced in its setup).
+
+Referring to `knowledge_mcp_usage.mdc` will give you more details on server configuration and instructing agents."

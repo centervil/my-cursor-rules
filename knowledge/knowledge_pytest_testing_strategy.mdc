@@ -3,3 +3,88 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Pytest-Driven Testing Strategy
+
+## Description
+This rule outlines a comprehensive testing strategy centered around Pytest for Python projects, as advocated in `project_management_guide.md`. It covers test structure, leveraging Pytest's features and extensions, and general automated testing principles.
+
+## Scope
+- Python projects where Pytest is the chosen testing framework.
+- Guiding AI agents and PMs in establishing and maintaining robust testing practices.
+
+## Key Concepts
+
+### 1. Pytest Fundamentals and Test-Driven Development (TDD)
+- **Pytest:** A mature, feature-rich testing framework for Python that makes it easy to write small, readable tests, and scales to support complex functional testing.
+- **TDD Encouraged:** While not strictly enforced by this rule, a TDD-like approach (writing tests before or concurrently with code) is highly recommended for AI-driven development to ensure requirements are met and to facilitate validation.
+
+### 2. Standardized Test Structure
+Adopt a hierarchical test structure for clarity and maintainability:
+```
+tests/
+├── conftest.py        # Common fixtures, hooks, and plugins for the test suite
+├── unit/              # Unit tests: Isolate and test individual components (functions, classes)
+│   └── test_*.py      # e.g., test_module_a.py, test_utils.py
+├── integration/       # Integration tests: Verify interactions between components or modules
+│   └── test_*_integration.py # e.g., test_api_database_integration.py
+└── e2e/               # End-to-end tests: Test the entire application flow from a user's perspective
+    └── test_*_e2e.py  # e.g., test_user_workflow_e2e.py
+```
+- **`conftest.py`:** Used for defining fixtures, hooks, and plugins that are shared across multiple test files within its directory and subdirectories.
+
+### 3. Leveraging Pytest Extensions
+Enhance testing capabilities with Pytest extensions:
+- **`pytest-cov`:** For generating code coverage reports.
+  - Helps identify untested parts of the codebase.
+  - Command: `pytest --cov=src/ --cov-report=html` (see `reference_pytest_commands.md`)
+- **`pytest-xdist`:** For distributing tests across multiple CPUs to speed up execution.
+  - Particularly useful for large test suites.
+  - Command: `pytest -n auto` (see `reference_pytest_commands.md`)
+- **`pytest-benchmark`:** For benchmarking code performance.
+  - Helps in identifying performance regressions or bottlenecks.
+  - Command: `pytest --benchmark-json=results.json` (see `reference_pytest_commands.md`)
+
+### 4. Effective Use of Fixtures
+- **Purpose:** Fixtures provide a fixed baseline upon which tests can reliably and repeatedly execute. They are used to set up and tear down resources needed by tests (e.g., database connections, API clients, temporary files).
+- **Definition:** Defined using the `@pytest.fixture` decorator, typically in `conftest.py` for shared fixtures or directly in test files for local ones.
+- **Scope:** Fixtures can have different scopes (`function`, `class`, `module`, `session`) to control their lifecycle.
+- **Example:** See `reference_pytest_fixture_example.py`.
+
+### 5. Automated Testing Strategy
+
+#### a. The Test Pyramid
+A conceptual guide for allocating effort across different test types:
+- **Unit Tests (approx. 70%):**
+    - Focus on small, isolated pieces of code (functions, methods).
+    - Fast to execute, numerous, and form the base of the pyramid.
+- **Integration Tests (approx. 20%):**
+    - Verify the interaction between several components or services.
+    - Slower than unit tests, fewer in number.
+- **End-to-End (E2E) Tests (approx. 10%):**
+    - Validate the entire application flow, simulating real user scenarios.
+    - Slowest to execute, fewest in number, and often more brittle, but crucial for overall system validation.
+
+#### b. Mocks and Stubs
+- **Purpose:** Isolate the code under test by replacing dependencies with controlled substitutes.
+    - **Mocks:** Objects that register calls they receive. Used to verify interactions.
+    - **Stubs:** Objects that provide canned answers to calls made during the test. Used to provide test data or force specific code paths.
+- **Tools:** Pytest works well with Python's built-in `unittest.mock` library (often aliased as `mock`).
+- **Example:** See `reference_pytest_mocking_example.py`.
+
+#### c. Parameterized Tests
+- **Purpose:** Run the same test function with multiple different input values and expected outputs.
+- **Reduces Code Duplication:** Avoids writing very similar test cases repeatedly.
+- **Decorator:** Uses `@pytest.mark.parametrize`.
+- **Example:** See `reference_pytest_parameterized_example.py`.
+
+## Outputs
+- A clear and maintainable test suite.
+- High confidence in code quality and correctness due to comprehensive testing.
+- Faster feedback loops from automated tests.
+
+## Success Criteria
+- Test suite is well-structured and easy to navigate.
+- High code coverage is achieved and maintained.
+- Different types of tests (unit, integration, E2E) are appropriately implemented according to the test pyramid.
+- Fixtures, mocks, and parameterization are used effectively to create robust and efficient tests.
+- AI agents can understand and contribute to the test suite effectively.

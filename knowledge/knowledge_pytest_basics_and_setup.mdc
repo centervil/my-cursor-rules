@@ -3,3 +3,93 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Pytest Basics, Setup, and Core Structure
+
+## Description
+This rule covers the fundamental concepts of Pytest, initial setup including `pytest.ini` configuration, recommended directory structures, naming conventions for tests, and the Arrange-Act-Assert (AAA) pattern. It is derived from `pytest_best_practices.md`.
+
+## Scope
+- Initial setup of Pytest in a Python project.
+- Establishing a consistent structure and naming for tests.
+- Guiding AI agents in generating well-structured and understandable basic tests.
+
+## Key Concepts
+
+### 1. What is Pytest?
+- A Python testing framework known for its simple syntax and powerful features.
+- **Key Features for AI Agents:**
+    - **Simple Assertions:** Uses plain `assert` statements for validation, making test code intuitive for AI generation and human review.
+    - **Automatic Discovery:** Automatically discovers test files (e.g., `test_*.py` or `*_test.py`) and test functions (e.g., `test_*`).
+    - **Flexible Fixtures:** Manages setup and teardown of test environments effectively (detailed in `knowledge_pytest_fixtures.mdc`).
+    - **Rich Plugin Ecosystem:** Offers numerous extensions for various testing needs (e.g., `pytest-cov` for coverage, `pytest-xdist` for parallel execution).
+    - **Detailed Error Reporting:** Provides comprehensive information on test failures.
+- AI agents should leverage these features to autonomously design and implement effective tests with minimal guidance.
+
+### 2. Installation and Basic Configuration
+- **Installation:**
+  ```bash
+  pip install pytest pytest-cov pytest-xdist # pytest-benchmark is also common
+  ```
+- **`pytest.ini` Configuration:**
+    - Create `pytest.ini` in the project root to define common settings.
+    - AI agents must refer to this file to ensure generated tests comply with project conventions.
+    - **Example `pytest.ini` content (see `reference_pytest_ini_example.ini` for full example):**
+      ```ini
+      [pytest]
+      testpaths = tests # Specifies the directory/directories where tests are located
+      python_files = test_*.py *_test.py # Patterns for test file discovery
+      python_classes = Test*          # Prefixes for test class discovery
+      python_functions = test_*         # Prefixes for test function discovery
+      markers =                       # Custom markers for categorizing tests
+          slow: marks tests as slow to run
+          integration: marks integration tests
+          security: marks security-related tests
+      addopts = --strict-markers      # Ensures all markers used are registered
+      ```
+
+### 3. Test Directory Structure
+- A standardized directory structure is crucial for maintainability and discoverability by AI agents.
+- **Recommended Structure (see `reference_pytest_directory_structure.txt` for text representation):**
+  ```
+  myproject/
+  ├── src/                     # Source code
+  │   └── mymodule/
+  ├── tests/
+  │   ├── conftest.py          # Shared fixtures for all tests
+  │   ├── unit/                # Unit tests
+  │   │   └── test_mymodule.py
+  │   ├── integration/         # Integration tests
+  │   │   └── test_api_flow.py
+  │   ├── security/            # Security-specific tests (e.g., for vulnerabilities)
+  │   │   └── test_auth_vulns.py
+  │   └── fixtures/            # Directory for test data files (e.g., JSON, YAML)
+  │       └── sample_data.json
+  └── pytest.ini
+  ```
+- AI agents should respect the existing structure and place new test files appropriately.
+- Tests for specific vulnerabilities (e.g., regression tests for fixed security issues) can be placed in `tests/security/`.
+
+### 4. Naming Conventions
+AI agents must adhere to these naming conventions when generating test code:
+- **Test Files:** `test_<module_or_feature>.py` or `<module_or_feature>_test.py` (align with `python_files` in `pytest.ini`).
+- **Test Classes (Optional):** `Test<ModuleOrFeature>` (if grouping tests in classes).
+- **Test Functions:** `test_<behavior_or_functionality>()`.
+- **Security Test Functions:** `test_security_<vulnerability_or_scenario>()` (e.g., `test_security_sql_injection_in_login`).
+
+### 5. AAA (Arrange-Act-Assert) Pattern
+AI agents must structure tests using the AAA pattern for clarity and maintainability:
+1.  **Arrange:** Set up preconditions. Initialize objects, prepare data, mock dependencies.
+2.  **Act:** Execute the target function or method (the code under test).
+3.  **Assert:** Verify the outcome. Check if the actual result matches the expected result, or if the system is in the expected state.
+
+- **PM Review Point:** PMs should review AI-generated tests to ensure they follow AAA, cover boundary conditions, error cases, and relevant security attack patterns.
+
+## Outputs
+- Well-configured Pytest environment.
+- Consistently structured and named test files and functions.
+- Clear and maintainable tests following the AAA pattern.
+
+## Success Criteria
+- Pytest is correctly installed and `pytest.ini` is configured according to project needs.
+- Test directory structure and naming conventions are consistently applied by AI agents.
+- AI-generated tests clearly follow the AAA pattern, making them easy to understand and review.

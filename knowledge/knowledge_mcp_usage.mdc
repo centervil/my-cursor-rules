@@ -3,3 +3,53 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Effective Usage of Model Context Protocol (MCP)
+
+## Description
+This rule provides an overview of the Model Context Protocol (MCP), its roles, common use cases, considerations for server selection and configuration, and how to instruct AI agents to utilize MCP effectively. It is based on the principles outlined in `project_management_guide.md`.
+
+## Scope
+- Applicable when AI agents need to interact with external resources like file systems, web content, or APIs as part of the development process.
+
+## Key Concepts
+
+### 1. What is MCP?
+- MCP is a standard protocol enabling AI agents to interact with external tools and resources.
+- It extends the capabilities of AI agents beyond their inherent knowledge and skills.
+
+### 2. Roles and Use Cases
+- **File System Access:** Reading, writing, creating, and deleting files and directories. Essential for code manipulation, log analysis, and documentation management.
+- **Web Information Retrieval:** Fetching content from URLs, performing web searches, or scraping data from web pages. Useful for research, documentation lookup, and staying updated with libraries/frameworks.
+- **External API Interaction:** Connecting to and interacting with various APIs, such as GitHub for repository operations, Slack for notifications, or databases for data manipulation.
+- **General Task Execution:** Any task that the AI agent cannot perform independently but can be accomplished through an external tool accessible via MCP.
+
+### 3. MCP Server Selection and Configuration
+- **Server Choice:**
+    - Select MCP servers that provide the specific functionalities required for the task.
+    - When using community-provided servers, verify their reliability, security, and maintenance status.
+- **Configuration (`mcp_agent.config.yaml`):
+    - Define the commands, arguments, and other necessary parameters for each MCP server in a configuration file (e.g., `mcp_agent.config.yaml`).
+    - This file centralizes MCP setup and makes it easier to manage different server integrations.
+- **Authentication:**
+    - For MCP servers requiring API keys or other credentials, store them securely using environment variables (`.env` files) or dedicated secret management tools.
+    - Avoid hardcoding sensitive information directly in configuration files or scripts.
+- **Runtime Requirements:**
+    - Be aware that some MCP servers might require specific runtimes like `npx` or `uvx`.
+    - Standardization for remote server connections is an ongoing effort.
+
+### 4. Instructing AI Agents to Use MCP
+- **Clear Instructions:** Provide explicit instructions to the AI agent regarding which MCP server or tool to use for a particular task.
+- **Specific Examples:**
+    - "Use the `filesystem` server to read the contents of `README.md`."
+    - "Employ the `fetch` server to retrieve and summarize the content from the URL [insert URL here]."
+    - "Utilize the `github_api` server to create a new branch named 'feature/xyz'."
+- **Contextual Information:** Ensure the AI agent has sufficient context to understand why MCP is needed and how the retrieved information or action performed via MCP contributes to the overall goal.
+
+## Outputs
+- AI agent successfully utilizes MCP to perform tasks requiring external interaction.
+- Secure and efficient integration of external tools into the AI-driven development workflow.
+
+## Success Criteria
+- AI agent correctly identifies when and how to use MCP for a given task.
+- MCP interactions are performed securely, protecting sensitive data and system integrity.
+- The use of MCP enhances the AI agent's capabilities and overall project efficiency.

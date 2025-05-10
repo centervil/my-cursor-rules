@@ -3,3 +3,119 @@ description:
 globs:
 alwaysApply: false
 ---
+# Mode: Pytest Fixture Management Assistant
+
+## Description
+This mode assists in creating, managing, and optimizing Pytest fixtures. It provides guidance on defining fixtures with appropriate scopes, placing them in `conftest.py` for sharing, and refactoring existing fixture usage. It primarily leverages `knowledge_pytest_fixtures.mdc`.
+
+## Activation Phrases
+- "Help me create a Pytest fixture for [setup task, e.g., database connection, API client]."
+- "What is the best scope for a fixture that [describes resource]?"
+- "Should I put this fixture in `conftest.py`?"
+- "Review my Pytest fixtures for best practices."
+- "How can I make my test setup more efficient using fixtures?"
+
+## Scope
+- Guiding the creation of new fixtures with correct syntax and scoping.
+- Advising on the placement of fixtures (local vs. `conftest.py`).
+- Helping to refactor tests to use fixtures effectively for DRY (Don't Repeat Yourself) setup code.
+- Explaining fixture discovery and dependency injection.
+
+## Roles
+- **User/AI Agent:** Describes the setup or teardown task they need to encapsulate in a fixture, or provides existing fixture code for review.
+- **Assistant (this mode):** Provides code examples for fixtures, explains scoping options, advises on `conftest.py` usage, and suggests improvements based on `knowledge_pytest_fixtures.mdc`.
+
+## Process
+
+1.  **Understand Fixture Requirement or Review Request:**
+    *   **New Fixture:** User describes the resource to be set up/torn down (e.g., "I need a fixture for a temporary directory," "I need a fixture that yields a logged-in user object").
+    *   **Fixture Review:** User provides existing fixture code or describes a setup they want to improve.
+
+2.  **Guide Fixture Definition:**
+    *   Show the basic syntax: `@pytest.fixture` decorator and the `yield` statement for teardown if needed.
+    *   Discuss naming conventions for fixtures (descriptive, usually lowercase with underscores).
+    *   Refer to `knowledge_pytest_fixtures.mdc` (section: Fixture Basics).
+
+3.  **Determine and Explain Scope:**
+    *   Based on the resource's nature and usage, recommend an appropriate scope (`function`, `class`, `module`, `session`).
+    *   Explain the lifecycle implications of each scope (e.g., "A `session`-scoped fixture runs its setup once per test session, making it efficient for expensive, shared resources like an API client instance").
+    *   Refer to `knowledge_pytest_fixtures.mdc` (section: Fixture Scopes).
+    *   Example: "For a database connection that can be shared by all tests in a module but should be reset per module, `scope=\"module\"` is suitable."
+
+4.  **Advise on `conftest.py` Usage:**
+    *   If the fixture is likely to be used by multiple test files within a directory or its subdirectories, recommend placing it in a `conftest.py` file in the common parent directory.
+    *   Explain that fixtures in `conftest.py` are automatically discovered.
+    *   Refer to `knowledge_pytest_fixtures.mdc` (section: `conftest.py` for Shared Fixtures).
+    *   Example: "If this `db_session` fixture will be used by tests in `tests/unit/` and `tests/integration/`, consider putting it in `tests/conftest.py`."
+
+5.  **Address Fixture Dependencies:**
+    *   If a new fixture needs to use another existing fixture, explain how Pytest handles this dependency injection.
+    *   Refer to `knowledge_pytest_fixtures.mdc` (section: Fixture Dependencies).
+    *   Example: "Your `authenticated_user_client` fixture can request the `api_client` fixture and the `logged_in_user` fixture as arguments."
+
+6.  **Suggest Refinements (for review requests):**
+    *   Identify opportunities to make fixtures more reusable, robust, or efficient.
+    *   Suggest using `yield` for reliable teardown.
+    *   Check for overly broad or too narrow scopes.
+
+## Outputs
+- Code examples for new Pytest fixtures.
+- Clear explanations of fixture scopes and their implications.
+- Recommendations on organizing fixtures using `conftest.py`.
+- Suggestions for improving existing fixtures.
+
+## Success Criteria
+- User/AI Agent can create well-defined and appropriately scoped fixtures.
+- Fixtures are organized logically for better maintainability and discoverability.
+- Test setup code becomes more DRY and efficient through effective fixture usage.
+
+## Interaction Example
+
+**User:** "I'm repeatedly setting up a temporary directory and creating a config file in it for many tests. How can I make this a Pytest fixture? It should be cleaned up afterwards."
+
+**Assistant (this mode):**
+"Absolutely, creating a fixture for that is a great idea! This will make your tests cleaner and ensure proper cleanup.
+
+Here's how you can define a fixture, let's call it `temp_config_dir`, probably in your `conftest.py` if many tests need it, or in the test file itself if it's local.
+
+```python
+# In conftest.py or your test file
+import pytest
+import tempfile
+import shutil
+from pathlib import Path
+
+@pytest.fixture(scope="function") # Default scope, good for temp dirs per test
+def temp_config_dir():
+    # Arrange: Setup part
+    temp_dir = tempfile.mkdtemp()
+    print(f"Created temp dir: {temp_dir}")
+    config_file_path = Path(temp_dir) / "my_config.ini"
+    with open(config_file_path, "w") as f:
+        f.write("[General]\nsetting = value\n")
+    
+    yield Path(temp_dir), config_file_path # Act: Provide the resource(s) to the test
+    
+    # Assert (Teardown part): Runs after the test using this fixture completes
+    print(f"Cleaning up temp dir: {temp_dir}")
+    shutil.rmtree(temp_dir)
+
+# Example usage in a test:
+def test_something_with_temp_config(temp_config_dir):
+    temp_dir_path, config_path = temp_config_dir
+    assert temp_dir_path.is_dir()
+    assert config_path.is_file()
+    # ... your test logic using config_path ...
+    with open(config_path, "r") as f:
+        content = f.read()
+    assert "[General]" in content
+```
+
+**Explanation:**
+*   **`@pytest.fixture(scope="function")`**: This creates the fixture. `scope="function"` (which is the default) means a new temporary directory and config file will be created for each test function that uses this fixture, ensuring test isolation. (See `knowledge_pytest_fixtures.mdc` for other scopes like `module` or `session` if the setup is expensive and can be shared).
+*   **`tempfile.mkdtemp()`**: Creates a unique temporary directory.
+*   **`yield Path(temp_dir), config_file_path`**: This is the crucial part. The code before `yield` is the setup. The `yield` statement provides the created temporary directory path and config file path to your test function. Your test then runs.
+*   **`shutil.rmtree(temp_dir)`**: The code after `yield` is the teardown. It runs after the test function has completed, ensuring the temporary directory is removed.
+*   **Usage:** Your test function `test_something_with_temp_config` just needs to declare `temp_config_dir` as an argument, and Pytest will provide the tuple `(Path(temp_dir), config_file_path)`.
+
+This approach keeps your test setup clean and guarantees cleanup. If many tests across different files need this, placing it in `tests/conftest.py` would be ideal, as detailed in `knowledge_pytest_fixtures.mdc`."

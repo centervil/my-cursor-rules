@@ -3,3 +3,80 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: AI Agent-Centric Development Iteration Overview
+
+## Description
+This rule outlines the AI agent-centric development iteration cycle, emphasizing the roles of the Project Manager (PM) and the AI agent, the importance of dialogue logs, and the feedback loop for continuous improvement. This cycle typically involves planning, development by the AI agent, review by the PM, integration, and a retrospective.
+
+## Scope
+- Applies to projects where AI agents (like Cursor, Cline, MCP) are the primary developers, and humans act as PMs for oversight, review, and approval.
+- Complements `project_management_guide.md` and `devsecops_guide.md`.
+
+## Inputs
+- Project goals and requirements defined in tickets (GitHub Issues).
+- Context and constraints provided by the PM.
+- Feedback from PM reviews.
+
+## Key Concepts and Process
+
+### 1. Iteration Cycle
+The development process follows an iterative cycle:
+
+1.  **Planning (PM-led, AI-assisted):**
+    *   The PM defines high-level goals, scope, and acceptance criteria in a ticket.
+    *   The AI agent can assist in breaking down tasks or suggesting approaches if requested.
+    *   Security requirements and threat modeling outcomes are considered at this stage.
+2.  **Development (AI-led):**
+    *   The AI agent autonomously develops the solution based on the ticket information.
+    *   The AI makes implementation decisions, writes code, and runs initial tests.
+    *   The AI should refer to provided documentation (e.g., `@` mentions of guides) and best practices.
+3.  **Review (PM-led - Human-In-The-Loop):**
+    *   The AI agent submits work (e.g., via a Pull Request) for PM review.
+    *   The PR should include a summary of changes, approach, and automated test/scan results.
+    *   The PM reviews for overall architecture, direction, security, and adherence to goals, rather than minute implementation details.
+    *   High-level feedback is provided for the AI to autonomously implement corrections.
+4.  **Integration (AI-led, PM-approved):**
+    *   After PM approval and successful CI/CD checks, the AI agent (or automated process) integrates the changes.
+5.  **Retrospective & Improvement (AI & PM):**
+    *   Upon ticket completion, both the AI and PM participate in a振り返り (retrospective).
+    *   This involves assessing goal achievement, process efficiency, AI performance, communication, technical debt, security, and documentation.
+    *   Improvement actions are identified and implemented (e.g., updating templates, AI settings, or documentation).
+
+### 2. PM Role: Guide and Reviewer
+The PM's role is to:
+- Set clear, high-level objectives through well-defined tickets.
+- Provide necessary context and constraints without over-specifying implementation details.
+- Conduct reviews at critical junctures, focusing on strategic aspects.
+- Facilitate the AI's autonomy and creative problem-solving.
+- Ensure quality, security, and alignment with project goals.
+
+### 3. AI Agent Role: Autonomous Developer
+The AI Agent's role is to:
+- Understand the requirements from the ticket.
+- Autonomously design, implement, and test the solution.
+- Proactively communicate progress, and any encountered issues or ambiguities.
+- Adhere to coding standards and best practices.
+- Learn from feedback and retrospectives to improve future performance.
+
+### 4. Dialogue Logs
+- All significant interactions, decisions, and direction changes between the PM and AI agent **must be recorded** in the development diary (e.g., `YYYY-MM-DD_NNN_development.md`).
+- This ensures clarity, traceability, and a shared understanding of the project's evolution.
+- The AI agent is responsible for maintaining this log.
+
+### 5. Model Context Protocol (MCP) Utilization
+- MCP enables AI agents to interact with external tools and resources (filesystem, web, APIs).
+- The PM may instruct the AI on which MCP servers/tools to use for specific tasks.
+- Secure configuration and management of MCP server access (e.g., API keys) are crucial. Refer to `project_management_guide.md` for details.
+
+## Outputs
+- Completed features or bug fixes aligned with ticket requirements.
+- Updated codebase, tests, and documentation.
+- Recorded dialogue and decisions in the development diary.
+- Actionable insights from retrospectives for process improvement.
+
+## Success Criteria
+- The AI agent successfully delivers the functionality described in the ticket.
+- The PM's review ensures the solution meets quality and security standards.
+- The development process is efficient, with minimal rework.
+- Learnings from the iteration are captured and used for future improvements.
+- Dialogue logs are consistently and accurately maintained.

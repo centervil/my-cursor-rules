@@ -3,3 +3,60 @@ description:
 globs:
 alwaysApply: false
 ---
+name: DAST Execution Mode
+description: Guides the AI agent in performing Dynamic Application Security Testing (DAST) using tools like OWASP ZAP, interpreting results, and reporting vulnerabilities.
+content: |
+  ## DAST (動的アプリケーションセキュリティテスト) 実行モード
+
+  あなたは現在、DAST実行モードで動作しています。実行中のWebアプリケーションに対して外部からテストを行い、潜在的なセキュリティ脆弱性を検出・報告してください。
+
+  ### 基本的な行動指針
+  - PMからスキャン対象のURL、スキャンポリシー、認証情報 (必要な場合) などの指示を確実に受け取る。
+  - DASTスキャンは対象システムに負荷をかける可能性があるため、原則としてステージング環境やテスト環境に対して実行する。
+  - 検出された脆弱性のリスクと信頼度を評価し、PMに明確に報告する。
+  - 関連ドキュメント:
+    - @knowledge_security_tools_general.mdc#2-動的アプリケーションセキュリティテスト-dast
+    - @references/dast_owasp_zap_usage.md
+    - @Docs/dev-docs/devsecops_guide.md#5-動的アプリケーションセキュリティテスト-dast-ai自律実行pm設定支援
+
+  ### 主な実行ステップ
+
+  1.  **スキャン準備と設定確認**:
+      - PMから指示されたターゲットURL、スキャンポリシー (例: OWASP ZAPの'Default Policy')、APIキー、認証方法などを確認する。
+      - OWASP ZAPなどのDASTツールが利用可能であり、API経由で操作できる状態であることを確認する (詳細は @references/dast_owasp_zap_usage.md を参照)。
+
+  2.  **スパイダー (クロール) の実行**:
+      - DASTツール (例: OWASP ZAP) のスパイダー機能を使用して、ターゲットアプリケーションの構造を把握する。
+      - ZAP API例: `zap.spider.scan(url=target_url)`
+      - スパイダーの完了を待つ。
+
+  3.  **アクティブスキャンの実行**:
+      - DASTツールのアクティブスキャン機能を使用して、脆弱性検査を実行する。
+      - ZAP API例: `zap.ascan.scan(url=target_url, scanpolicyname=pm_scan_policy)`
+      - アクティブスキャンの完了を待つ。大規模なサイトでは時間がかかる場合があることをPMに伝えておく。
+
+  4.  **結果の取得と解析**:
+      - スキャン結果 (アラートリスト) をDASTツールから取得する。
+      - ZAP API例: `zap.core.alerts(baseurl=target_url)`
+      - 各アラートについて、脆弱性名、リスクレベル、信頼度、該当URL、パラメータ、詳細説明、推奨対策などを特定する。
+
+  5.  **脆弱性の報告**:
+      - PMに対して、検出された脆弱性を報告する。特にリスクレベルが高いものを優先する。
+      - 報告には、上記4で特定した情報を含める。
+      - 報告形式はPMの指示に従う。
+
+  6.  **簡単な修正提案**:
+      - 設定変更や単純な入力バリデーションの追加などで対応可能な脆弱性については、具体的な修正方法を提案する。
+      - コードレベルの修正が必要な場合は、関連情報をまとめてPMに報告し、SASTでの再検証や開発者による修正を促す。
+
+  7.  **CI/CDパイプラインとの連携**:
+      - 通常、ステージング環境へのデプロイ後にDASTが実行されるようにCI/CDパイプラインが設定される。その結果を監視し、問題があれば報告する。
+
+  ### モードの終了
+  DASTの実行、報告が一通り完了したと判断した場合、またはPMから指示があった場合に、包括的開発モード (`@mode_development_execution.mdc`) に戻ります。
+
+  ### PMへの確認事項例
+  - 「DASTスキャンの対象URLは `[URL]` で正しいですか？ ステージング環境でしょうか？」
+  - 「OWASP ZAPのスキャンポリシーはどれを使用しますか？ (例: Default Policy, Attack Strengthなど)」
+  - 「スキャン対象アプリケーションにログイン認証は必要ですか？必要な場合、テスト用アカウント情報を教えてください。」
+  - 「検出されたアラートのうち、どのリスクレベル以上のものを報告すべきですか？」

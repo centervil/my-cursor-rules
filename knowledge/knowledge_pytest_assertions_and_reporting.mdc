@@ -3,3 +3,101 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Pytest Assertions and Reporting
+
+## Description
+This rule covers best practices for using assertions in Pytest, including testing for exceptions and warnings, and understanding Pytest's detailed reporting capabilities, including code coverage with `pytest-cov`. Based on `pytest_best_practices.md`.
+
+## Scope
+- Writing clear and effective assertions in tests.
+- Handling expected exceptions and warnings.
+- Interpreting Pytest test reports and coverage data.
+- Guiding AI agents to generate tests with appropriate assertions and to help interpret results.
+
+## Key Concepts
+
+### 1. Rich Assertions with Plain `assert`
+- Pytest allows the use of standard Python `assert` statements for verifications.
+- **Assertion Introspection:** Pytest rewrites `assert` statements during execution to provide detailed information about expression values in failure reports, making debugging easier.
+  ```python
+  def test_addition():
+      x = 1
+      y = 2
+      # assert x + y == 4 # Pytest report would show values of x, y, and x+y
+      assert x + y == 3
+  ```
+- **AI Guidance:** AI agents should use clear and direct `assert` statements. For complex objects, assert specific attributes or properties rather than entire object equality if only parts are relevant.
+
+### 2. Testing for Expected Exceptions (`pytest.raises`)
+- Use `pytest.raises` as a context manager to assert that a specific exception is raised within a block of code.
+  ```python
+  import pytest
+
+  # def my_function_that_raises(value):
+  #     if value < 0:
+  #         raise ValueError("Value cannot be negative")
+  #     return value
+
+  def test_negative_value_raises_valueerror():
+      with pytest.raises(ValueError) as excinfo:
+          # my_function_that_raises(-1)
+          pass # Placeholder for the actual call
+      # assert "Value cannot be negative" in str(excinfo.value) # Check exception message
+  ```
+- The `excinfo` object (ExceptionInfo) provides details about the caught exception.
+- **AI Guidance:** When an AI agent knows or is told that a function should raise an exception under certain conditions, it should generate a test using `pytest.raises`.
+
+### 3. Testing for Expected Warnings (`pytest.warns`)
+- Use `pytest.warns` as a context manager to assert that specific warnings are issued.
+  ```python
+  import pytest
+  import warnings
+
+  # def function_that_warns():
+  #     warnings.warn("This is a deprecation warning", DeprecationWarning)
+  #     return True
+
+  def test_function_issues_deprecation_warning():
+      with pytest.warns(DeprecationWarning, match="This is a deprecation warning") as record:
+          # function_that_warns()
+          pass # Placeholder for the actual call
+      # assert len(record) == 1
+      # assert "This is a deprecation warning" in str(record[0].message)
+  ```
+- The `record` object contains a list of `warnings.WarningMessage` objects.
+- **AI Guidance:** If a function is expected to issue warnings (e.g., for deprecation), AI agents should use `pytest.warns`.
+
+### 4. Test Reports and Verbosity
+- Pytest provides informative reports by default.
+- **Verbosity Options (see `reference_pytest_commands.md`):**
+    - `-v` (verbose): More detailed output per test.
+    - `-vv` (even more verbose).
+    - `-r<chars>`: Report extra test summary information for specific outcomes (e.g., `f`ailed, `s`kipped, `E`rror, `X`FAIL, `x`PASS).
+      Example: `pytest -ra` (report all except passes).
+- **AI Guidance:** AI agents might be instructed by the PM to run tests with specific verbosity or reporting options to gather more detailed information during failures.
+
+### 5. Code Coverage with `pytest-cov`
+- **Purpose:** `pytest-cov` is a plugin that measures code coverage during test execution, showing which parts of your codebase are exercised by tests.
+- **Installation:** `pip install pytest-cov` (often included in initial setup).
+- **Basic Usage (see `reference_pytest_commands.md`):
+  ```bash
+  pytest --cov=your_package_name # Report coverage for your_package_name
+  pytest --cov=src --cov-report=html # Generate an HTML report in htmlcov/
+  ```
+- **Interpreting Coverage Reports:**
+    - **Statement Coverage:** Percentage of executable statements covered.
+    - **Branch Coverage:** (If configured and supported by coverage tool) Percentage of possible execution branches (e.g., if/else blocks) taken.
+    - **Missing Lines:** Reports indicate lines not covered by tests.
+- **Coverage Goals:** PMs may set coverage targets (e.g., 80% statement coverage). However, 100% coverage doesn't guarantee bug-free code; the quality of tests is paramount.
+- **AI Guidance:** AI agents can be instructed to generate tests aimed at improving coverage for specific modules or lines identified as missing in coverage reports. They should not just aim for line coverage but for meaningful scenario testing.
+
+## Outputs
+- Tests with clear, specific, and robust assertions.
+- Correct handling and verification of expected exceptions and warnings.
+- Ability to generate and interpret detailed test reports and code coverage information.
+
+## Success Criteria
+- Assertions in AI-generated tests are precise and effectively validate the intended behavior.
+- Expected exceptions and warnings are tested correctly using `pytest.raises` and `pytest.warns`.
+- AI agents can assist in running tests with coverage and PMs can use the reports to identify gaps.
+- Test failure reports are easily understood due to Pytest's introspection and verbosity.

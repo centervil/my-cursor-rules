@@ -3,3 +3,113 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Pytest Parameterization and Markers
+
+## Description
+This rule explains how to use Pytest's parameterization features (`@pytest.mark.parametrize`) to run tests with multiple input sets and how to leverage markers (`@pytest.mark.*`) for categorizing, selecting, or modifying test behavior. Based on `pytest_best_practices.md`.
+
+## Scope
+- Efficiently testing functions with various inputs and conditions.
+- Organizing and controlling test execution through markers.
+- Guiding AI agents to generate comprehensive test suites using these features.
+
+## Key Concepts
+
+### 1. Parameterized Tests (`@pytest.mark.parametrize`)
+- **Purpose:** Allows running the same test function multiple times with different arguments and expected outcomes. This is highly effective for testing various scenarios, boundary conditions, and representative values without duplicating test code.
+- **PM Guidance:** PMs can instruct AI agents to use parameterization to ensure comprehensive testing, especially for functions with multiple inputs or complex logic.
+- **Syntax:**
+  ```python
+  import pytest
+
+  # func_to_test would be imported from application code
+  # def func_to_test(input_arg):
+  #     return input_arg * 2 
+
+  @pytest.mark.parametrize("test_input, expected_output", [
+      (1, 2),
+      (2, 4),
+      (0, 0),
+      (-3, -6),
+      pytest.param(5, 10, id="positive-case"), # Optional: custom test ID
+      pytest.param(10, 20, marks=pytest.mark.slow, id="slow-case") # Apply marks to specific params
+  ])
+  def test_func_with_various_inputs(test_input, expected_output):
+      # assert func_to_test(test_input) == expected_output
+      pass # Placeholder
+  ```
+- **Multiple Parameters:** Parameterize with multiple sets of arguments.
+  ```python
+  # func_add(a,b) would be imported
+  # def func_add(a,b):
+  #    return a+b
+  @pytest.mark.parametrize("x", [0, 1])
+  @pytest.mark.parametrize("y", [2, 3])
+  def test_multiple_parameter_sets(x, y):
+      # Test will run for (x=0,y=2), (x=0,y=3), (x=1,y=2), (x=1,y=3)
+      # assert func_add(x,y) == x + y
+      pass # Placeholder
+  ```
+- **Use Cases for AI:** AI agents should be prompted to consider parameterization for:
+    - Testing boundary values (min, max, zero, empty).
+    - Testing typical valid inputs.
+    - Testing invalid or error-inducing inputs (combined with `pytest.raises`).
+    - Testing different combinations of configuration options.
+
+### 2. Markers (`@pytest.mark.*`)
+- **Purpose:** Markers are used to attach metadata to tests. This metadata can be used by Pytest or plugins to:
+    - **Categorize tests:** E.g., `@pytest.mark.slow`, `@pytest.mark.integration`, `@pytest.mark.security`.
+    - **Select/deselect tests for execution:** Using the `-m` command-line option (e.g., `pytest -m integration`).
+    - **Modify test behavior:** E.g., `@pytest.mark.skip` (always skip), `@pytest.mark.skipif(condition)` (skip if condition is true), `@pytest.mark.xfail` (expected to fail).
+    - **Apply specific fixtures or hooks.**
+- **Registration:** Custom markers should be registered in `pytest.ini` to avoid warnings (see `reference_pytest_ini_example.ini`).
+  ```ini
+  [pytest]
+  markers =
+      slow: marks tests as slow to run
+      integration: marks integration tests
+      security: marks security related tests
+  ```
+- **PM Guidance:** PMs can instruct AI agents to use specific markers for test execution control (e.g., "run only integration tests") or to categorize new tests.
+- **Common Built-in Markers:**
+    - `skip(reason=None)`: Unconditionally skip the test.
+    - `skipif(condition, reason=None)`: Skip the test if `condition` is true.
+    - `xfail(condition=None, reason=None, raises=None, run=True, strict=False)`: Expect the test to fail. If it passes unexpectedly, it's reported as an XPASS (unless `strict=True`).
+    - `parametrize`: (Covered above).
+- **Applying Markers:**
+  ```python
+  import pytest
+  import sys
+
+  @pytest.mark.slow
+  def test_very_long_computation():
+      # ...
+      pass
+
+  @pytest.mark.integration
+  def test_database_connection():
+      # ...
+      pass
+
+  @pytest.mark.skip(reason="Feature not yet implemented")
+  def test_new_feature():
+      pass
+
+  skip_on_windows = pytest.mark.skipif(sys.platform == "win32", reason="Does not run on Windows")
+
+  @skip_on_windows
+  def test_linux_specific_functionality():
+      # ...
+      pass
+  ```
+
+## Outputs
+- Efficient and comprehensive test suites covering multiple scenarios through parameterization.
+- Well-organized tests that can be selectively run using markers.
+- Improved test suite maintainability.
+
+## Success Criteria
+- AI agents utilize `@pytest.mark.parametrize` to reduce test code duplication and cover a wider range of inputs.
+- Markers are applied appropriately by AI agents for categorization and control.
+- PMs can effectively manage test execution using markers.
+- Custom markers are properly registered in `pytest.ini`.

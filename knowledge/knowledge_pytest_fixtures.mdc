@@ -3,3 +3,114 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Effective Use of Pytest Fixtures
+
+## Description
+This rule details the effective utilization of Pytest fixtures, including their basic definition, various scopes, dependency injection, and the role of `conftest.py` for sharing fixtures. It is based on `pytest_best_practices.md`.
+
+## Scope
+- Creating, managing, and sharing Pytest fixtures for test setup and teardown.
+- Guiding AI agents to autonomously discover and use existing fixtures or create new ones appropriately.
+
+## Key Concepts
+
+### 1. Fixture Basics
+- **Purpose:** Fixtures provide a reliable, repeatable baseline for tests by managing the setup and teardown of resources (e.g., database connections, API clients, sample data, temporary directories).
+- **Definition:** Defined using the `@pytest.fixture` decorator.
+- **Usage:** Test functions can receive fixture instances by declaring them as arguments. Pytest handles the discovery and injection.
+- **AI Agent Behavior:** AI agents should be able to detect and utilize existing fixtures defined in `conftest.py` or the current test file when generating tests.
+  ```python
+  # Example from pytest_best_practices.md
+  import pytest
+
+  @pytest.fixture
+  def sample_data():
+      """A simple fixture providing sample data."""
+      return {"key1": "value1", "key2": "value2"}
+
+  def test_data_processing(sample_data): # AI agent selects appropriate fixture
+      # result = process_data(sample_data) # Assuming process_data exists
+      # assert "key1" in result
+      pass # Placeholder
+  ```
+
+### 2. Fixture Scopes
+- Scopes control the lifecycle of a fixture instance (i.e., how often its setup and teardown code runs).
+- Proper scoping improves test efficiency by avoiding redundant setup/teardown for expensive resources.
+- **Available Scopes:**
+    - `function`: (Default) Runs once per test function that uses it.
+    - `class`: Runs once per test class for all methods that use it.
+    - `module`: Runs once per module for all tests in that module that use it.
+    - `package`: Runs once per package for all tests in that package that use it (less common).
+    - `session`: Runs once per test session for all tests that use it.
+- **Example (`pytest_best_practices.md`):
+  ```python
+  @pytest.fixture(scope="function")
+  def db_connection_func(): # Example: new connection for each test
+      # conn = create_db_connection()
+      # yield conn
+      # conn.close()
+      pass # Placeholder
+
+  @pytest.fixture(scope="module")
+  def expensive_resource_module(): # Example: shared resource for a module
+      # resource = setup_expensive_resource()
+      # yield resource
+      # teardown_expensive_resource(resource)
+      pass # Placeholder
+
+  @pytest.fixture(scope="session")
+  def api_client_session(): # Example: API client for the whole session
+      # client = APIClient()
+      # yield client
+      # client.disconnect()
+      pass # Placeholder
+  ```
+- **AI Guidance:** AI agents should be guided (or infer from context/existing patterns) to choose appropriate scopes, especially for resource-intensive fixtures.
+
+### 3. Fixture Dependencies
+- Fixtures can request other fixtures, creating a dependency chain. Pytest resolves these automatically.
+- This promotes modularity and reusability in fixture design.
+- **Example (`pytest_best_practices.md`):
+  ```python
+  @pytest.fixture
+  def user_details():
+      return {"id": 123, "username": "test_user"}
+
+  @pytest.fixture
+  def authenticated_api_client_session(api_client_session, user_details):
+      # api_client_session.login(user_details) # Assuming login method
+      # yield api_client_session
+      # api_client_session.logout()
+      pass # Placeholder
+  ```
+
+### 4. `conftest.py` for Shared Fixtures
+- **Purpose:** `conftest.py` files are local per-directory plugin hooks and fixture definitions.
+- **Discoverability:** Fixtures defined in a `conftest.py` are automatically available to all tests in that directory and its subdirectories without needing to be imported.
+- **AI Agent Usage:** AI agents can easily discover and utilize common setup code by looking for fixtures in `conftest.py` files at various levels (project root `tests/` dir, specific subdirectories like `tests/integration/`).
+- **Example (`pytest_best_practices.md`):
+  ```python
+  # tests/conftest.py
+  import pytest
+  import json
+  from pathlib import Path
+
+  @pytest.fixture(scope="session")
+  def global_test_data():
+      data_file = Path(__file__).parent / "fixtures" / "test_data.json" # Assuming test_data.json is in tests/fixtures/
+      # with open(data_file, "r") as f:
+      #     return json.load(f)
+      return {"global_key": "global_value"} # Placeholder
+  ```
+- **Multiple `conftest.py`:** Different `conftest.py` files can exist at different directory levels to manage fixture scope and applicability more granularly.
+
+## Outputs
+- Well-defined, reusable, and appropriately scoped fixtures.
+- Efficient test execution due to optimized resource management via fixtures.
+- Clear separation of test setup logic from test case logic.
+
+## Success Criteria
+- AI agents effectively utilize existing fixtures and can create new ones when necessary, following best practices for scoping and placement (`conftest.py`).
+- Fixture dependencies are managed correctly.
+- Test setup code is DRY (Don't Repeat Yourself) due to fixture reuse.

@@ -3,3 +3,115 @@ description:
 globs:
 alwaysApply: false
 ---
+# Mode: Test Implementation Support with Pytest
+
+## Description
+This mode assists in creating and structuring tests using Pytest, following the best practices outlined in `knowledge_pytest_testing_strategy.mdc` and its associated reference documents (`reference_pytest_fixture_example.py`, `reference_pytest_mocking_example.py`, `reference_pytest_parameterized_example.py`, `reference_pytest_commands.md`).
+
+## Activation Phrases
+- "Help me write a Pytest test for [function/module/feature]."
+- "How should I test [scenario] using Pytest?"
+- "Generate a Pytest unit test for this function: [code snippet]."
+- "Advise on Pytest fixtures for [setup need]."
+- "Show me how to mock [dependency] in Pytest."
+
+## Scope
+- Guidance on Pytest test structure (unit, integration, E2E).
+- Assistance in writing test functions, including setup (fixtures) and teardown.
+- Help with mocking dependencies.
+- Guidance on using parameterization for data-driven tests.
+- Suggesting relevant Pytest commands for test execution and reporting.
+
+## Roles
+- **User/AI Agent:** Specifies the code/feature to be tested, the testing goal (e.g., unit test a function, test an API endpoint), and any specific requirements (e.g., mocking a database, testing multiple inputs).
+- **Assistant (this mode):** Provides Pytest code snippets, structural advice, explanations of concepts, and command suggestions, referencing the knowledge and example Rules.
+
+## Process
+
+1.  **Understand Testing Requirement:**
+    *   User specifies the target for testing (e.g., a Python function, a class method, an API endpoint).
+    *   User describes the desired type of test (e.g., unit, integration) or the specific behavior to verify.
+
+2.  **Determine Test Structure and Type:**
+    *   Based on the target and goal, suggest an appropriate test structure (e.g., placing unit tests in `tests/unit/test_module.py`).
+    *   Refer to `knowledge_pytest_testing_strategy.mdc` (section: Standardized Test Structure, The Test Pyramid).
+
+3.  **Guide on Test Function Creation:**
+    *   Help write the basic `test_` function.
+    *   Discuss assertions needed to verify the expected outcome.
+
+4.  **Address Setup/Teardown (Fixtures):**
+    *   If the test requires setup (e.g., creating objects, database connections), guide on creating or using Pytest fixtures.
+    *   Explain fixture scopes (`function`, `class`, `module`, `session`).
+    *   Refer to `knowledge_pytest_testing_strategy.mdc` (section: Effective Use of Fixtures) and `reference_pytest_fixture_example.py`.
+    *   Example: "For setting up a temporary database, you could define a session-scoped fixture in `conftest.py`."
+
+5.  **Guide on Mocking (If needed):**
+    *   If the code under test has external dependencies that need to be controlled, explain how to use `monkeypatch` or `unittest.mock` with Pytest.
+    *   Refer to `knowledge_pytest_testing_strategy.mdc` (section: Mocks and Stubs) and `reference_pytest_mocking_example.py`.
+    *   Example: "To mock the `requests.get` call, you can use `monkeypatch.setattr` within a fixture."
+
+6.  **Guide on Parameterization (If applicable):**
+    *   If the test logic needs to be run with multiple input-output pairs, introduce `@pytest.mark.parametrize`.
+    *   Refer to `knowledge_pytest_testing_strategy.mdc` (section: Parameterized Tests) and `reference_pytest_parameterized_example.py`.
+    *   Example: "To test your `is_valid_input` function with various inputs, use `@pytest.mark.parametrize`."
+
+7.  **Suggest Execution Commands:**
+    *   Provide relevant Pytest commands for running the test(s), generating coverage, etc.
+    *   Refer to `reference_pytest_commands.md`.
+    *   Example: "You can run this test file using `pytest tests/unit/test_your_module.py`. For coverage, use `pytest --cov=your_package ...`."
+
+## Outputs
+- Skeleton Pytest test files or functions.
+- Advice on structuring tests and using Pytest features effectively.
+- Example code snippets for fixtures, mocks, and parameterization.
+- Relevant Pytest commands.
+
+## Success Criteria
+- User/AI Agent is able to create well-structured, effective Pytest tests.
+- The generated tests are robust and maintainable.
+- The guidance helps in applying Pytest best practices.
+
+## Interaction Example
+
+**User:** "I need to write a unit test for my Python function `calculate_vat(amount, rate)` which calls an external service `get_current_vat_rate()` if `rate` is not provided. How do I do this with Pytest, especially mocking the external service?"
+
+**Assistant (this mode):**
+"Okay, let's create a Pytest unit test for `calculate_vat` and mock `get_current_vat_rate()`.
+
+1.  **Test Structure:** Place this test in a file like `tests/unit/test_your_module.py` (assuming `calculate_vat` is in `your_module.py`).
+
+2.  **Basic Test Function:**
+    ```python
+    # tests/unit/test_your_module.py
+    from your_module import calculate_vat # Import your function
+    import pytest
+
+    def test_calculate_vat_with_rate_provided():
+        assert calculate_vat(100, 0.20) == 20.0
+    ```
+
+3.  **Mocking `get_current_vat_rate()`:** We'll use `monkeypatch` for this.
+    ```python
+    # Still in tests/unit/test_your_module.py
+    def test_calculate_vat_with_mocked_external_rate(monkeypatch):
+        # Mock the external service call within your_module
+        monkeypatch.setattr("your_module.get_current_vat_rate", lambda: 0.25) # Mock to return 25%
+        assert calculate_vat(100, None) == 25.0 # Pass None to trigger external call
+    
+    def test_calculate_vat_external_rate_not_called_if_rate_provided(monkeypatch):
+        mock_external_call = MagicMock(return_value=0.25) # Using unittest.mock.MagicMock
+        monkeypatch.setattr("your_module.get_current_vat_rate", mock_external_call)
+        calculate_vat(100, 0.20) # Rate is provided
+        mock_external_call.assert_not_called() # Verify the mock wasn't called
+    ```
+
+4.  **Guidance from Rules:**
+    *   For more on mocking, see `reference_pytest_mocking_example.py`.
+    *   For general Pytest structure and fixture usage, refer to `knowledge_pytest_testing_strategy.mdc`.
+
+5.  **Execution:**
+    *   Run these tests with `pytest tests/unit/test_your_module.py`.
+    *   For coverage: `pytest --cov=your_module tests/unit/test_your_module.py` (see `reference_pytest_commands.md`).
+
+This should give you a good start! Let me know if you have more questions."

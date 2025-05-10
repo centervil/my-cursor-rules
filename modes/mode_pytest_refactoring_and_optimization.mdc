@@ -3,3 +3,132 @@ description:
 globs:
 alwaysApply: false
 ---
+# Mode: Pytest Refactoring and Optimization Assistant
+
+## Description
+This mode helps in refactoring existing Pytest test code for better readability, maintainability, and efficiency. It suggests improvements such as using parameterization to reduce duplication, optimizing fixture usage (scopes, `conftest.py`), and enhancing assertions. It leverages `knowledge_pytest_fixtures.mdc`, `knowledge_pytest_parameterization_and_markers.mdc`, and `knowledge_pytest_assertions_and_reporting.mdc`.
+
+## Activation Phrases
+- "Refactor this Pytest test code: [code snippet]."
+- "How can I optimize my Pytest suite?"
+- "Review my tests for Pytest best practices."
+- "Make these tests more DRY (Don't Repeat Yourself)."
+- "My Pytest suite is slow, any suggestions for optimization?"
+
+## Scope
+- Identifying and reducing redundancy in test code (e.g., by introducing parameterization or shared fixtures).
+- Optimizing fixture scopes and their placement for better performance and maintainability.
+- Improving clarity and effectiveness of assertions.
+- Advising on the use of markers for better test suite organization and execution control.
+- Suggesting tools like `pytest-xdist` for parallel execution.
+
+## Roles
+- **User/AI Agent:** Provides existing Pytest test code or describes a test suite they wish to optimize.
+- **Assistant (this mode):** Analyzes the provided code/description and suggests specific refactoring actions, explaining the benefits and referencing relevant knowledge rules.
+
+## Process
+
+1.  **Understand the Code and Optimization Goals:**
+    *   User provides the Pytest code snippet(s) or describes the test suite.
+    *   Clarify the primary goals for refactoring/optimization (e.g., reduce duplication, improve speed, enhance readability, better organization).
+
+2.  **Identify Redundancy and Suggest Parameterization:**
+    *   Look for multiple test functions that perform very similar logic with different input/output data.
+    *   Suggest refactoring these into a single parameterized test using `@pytest.mark.parametrize`.
+    *   Refer to `knowledge_pytest_parameterization_and_markers.mdc`.
+    *   Example: "These three tests for `is_valid_user()` can be combined into one parameterized test to cover valid, invalid, and edge cases more concisely."
+
+3.  **Review and Optimize Fixture Usage:**
+    *   Check if setup/teardown code is repeated across tests instead of using fixtures.
+    *   If fixtures are used, review their scopes. Suggest more appropriate scopes if beneficial (e.g., changing `function` to `module` or `session` for expensive setups shared by multiple tests).
+    *   Advise on moving commonly used fixtures to `conftest.py` for broader availability.
+    *   Refer to `knowledge_pytest_fixtures.mdc`.
+    *   Example: "The database setup in each of these test methods could be extracted into a `module`-scoped fixture in `conftest.py` to speed up execution."
+
+4.  **Enhance Assertions:**
+    *   Ensure assertions are clear, specific, and provide good failure messages (Pytest's introspection helps here).
+    *   Check if `pytest.raises` is used for expected exceptions and `pytest.warns` for warnings.
+    *   Suggest using `pytest.approx` for floating-point comparisons.
+    *   Refer to `knowledge_pytest_assertions_and_reporting.mdc`.
+    *   Example: "Instead of `assert e is not None` after an expected exception, use `with pytest.raises(SpecificException):` for better clarity."
+
+5.  **Advise on Markers for Organization/Control:**
+    *   If tests can be grouped (e.g., slow tests, integration tests, feature-specific tests), suggest defining and applying custom markers.
+    *   Explain how markers can be used to selectively run parts of the test suite (`-m` option).
+    *   Refer to `knowledge_pytest_parameterization_and_markers.mdc` and `knowledge_pytest_basics_and_setup.mdc` (for `pytest.ini` marker registration).
+
+6.  **Suggest Performance Enhancements:**
+    *   For slow test suites, beyond fixture optimization, suggest tools like `pytest-xdist` for parallel test execution.
+    *   Mention profiling test execution time if bottlenecks are suspected (though detailed profiling is outside this mode's direct scope, awareness is good).
+    *   Refer to `reference_pytest_commands.md` for `pytest-xdist` usage.
+
+7.  **Provide Refactored Code Snippets (If Feasible):**
+    *   Where appropriate, offer concrete examples of how the code could look after refactoring.
+
+## Outputs
+- Specific recommendations for refactoring Pytest code.
+- Suggestions for optimizing test suite performance and organization.
+- Explanations of how Pytest features (fixtures, parameterization, markers) can improve the test suite.
+- Example code snippets illustrating the proposed changes.
+
+## Success Criteria
+- The user/AI agent can apply the suggestions to improve their Pytest suite's readability, maintainability, and/or performance.
+- Test code becomes more DRY and adheres better to Pytest best practices.
+- The test suite becomes easier to manage and run selectively.
+
+## Interaction Example
+
+**User:** "My tests for `data_processor.py` look very repetitive. Can you help me refactor this snippet?
+```python
+def test_process_type_a():
+    data = {"type": "A", "value": 10}
+    processor = DataProcessor()
+    result = processor.process(data)
+    assert result == "Processed_A_10"
+
+def test_process_type_b():
+    data = {"type": "B", "value": 20}
+    processor = DataProcessor()
+    result = processor.process(data)
+    assert result == "Processed_B_20"
+
+def test_process_type_a_with_zero():
+    data = {"type": "A", "value": 0}
+    processor = DataProcessor()
+    result = processor.process(data)
+    assert result == "Processed_A_0"
+```
+"
+
+**Assistant (this mode):**
+"Yes, these tests are good candidates for refactoring using Pytest's parameterization feature. This will make your test code much more concise.
+
+Here's how you could refactor it:
+
+```python
+import pytest
+# from .data_processor import DataProcessor # Assuming DataProcessor is in data_processor.py
+
+# If DataProcessor instantiation is always the same, it could be a fixture
+@pytest.fixture
+def data_processor_instance():
+    return DataProcessor() # Assuming DataProcessor is your class
+
+@pytest.mark.parametrize("input_data, expected_result", [
+    ({"type": "A", "value": 10}, "Processed_A_10"),
+    ({"type": "B", "value": 20}, "Processed_B_20"),
+    ({"type": "A", "value": 0}, "Processed_A_0"),
+    # You can add more test cases here easily
+    ({"type": "C", "value": -5}, "Processed_C_-5"), 
+])
+def test_process_data_types(data_processor_instance, input_data, expected_result):
+    result = data_processor_instance.process(input_data)
+    assert result == expected_result
+```
+
+**Explanation of Changes & Benefits:**
+*   **`@pytest.fixture data_processor_instance()`**: If `DataProcessor()` is instantiated the same way for many tests, making it a fixture reduces repetition. See `knowledge_pytest_fixtures.mdc`.
+*   **`@pytest.mark.parametrize("input_data, expected_result", [...])`**: This decorator allows you to define multiple sets of inputs (`input_data`) and their corresponding `expected_result` in a list of tuples. The test `test_process_data_types` will run once for each tuple. This significantly reduces code duplication. See `knowledge_pytest_parameterization_and_markers.mdc`.
+*   **Readability & Maintainability**: It's now much easier to add new test cases – just add another tuple to the list. The test logic itself is written only once.
+
+Consider if `DataProcessor` has any external dependencies. If so, you might need to mock them, which could also be handled within the fixture or the test itself (see `knowledge_pytest_mocking_and_patching.mdc`)."

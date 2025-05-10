@@ -3,3 +3,80 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Pytest for Security Testing
+
+## Description
+This rule outlines how Pytest can be utilized for security testing within an AI-agent-driven development process, emphasizing the integration with DevSecOps practices. It covers specific directory structures, naming conventions, and approaches to writing security-focused tests. This rule is based on `pytest_best_practices.md` and complements `devsecops_guide.md` and `knowledge_devsecops_overview.mdc`.
+
+## Scope
+- Implementing security-specific tests using Pytest.
+- Guiding AI agents to generate tests that target potential vulnerabilities.
+- Integrating security testing into the broader testing strategy.
+
+## Key Concepts
+
+### 1. Importance of Security Testing with Pytest
+- While SAST/DAST tools (covered in `mode_sast_execution` and `mode_dast_execution`) are crucial, Pytest can be used to write targeted tests for:
+    - **Specific Vulnerability Patterns:** Test for known vulnerabilities like SQL Injection, XSS, Insecure Direct Object References (IDOR), improper input validation, etc., tailored to the application's context.
+    - **Business Logic Flaws:** Test for security issues arising from flaws in application logic that automated scanners might miss.
+    - **Regression Testing for Security Patches:** Ensure that fixed vulnerabilities do not reappear.
+    - **Testing Security Controls:** Verify that security mechanisms (authentication, authorization, rate limiting) work as expected.
+
+### 2. Directory Structure and Naming
+- **Dedicated Security Test Directory:**
+    - As recommended in `knowledge_pytest_basics_and_setup.mdc`, place security-specific tests in a dedicated directory: `tests/security/`.
+    - This helps in organizing security tests and potentially running them as a separate suite if needed.
+- **Naming Conventions for Security Tests:**
+    - Test files: `test_security_<area_or_feature>.py` (e.g., `test_security_auth.py`, `test_security_user_input.py`).
+    - Test functions: `test_security_<vulnerability_type_or_scenario>()` (e.g., `test_security_sql_injection_in_login()`, `test_security_xss_in_comment_field()`).
+
+### 3. Approach to Writing Security Tests with Pytest
+- **Think Like an Attacker:** Design tests that simulate common attack vectors relevant to the application.
+- **Input Validation Tests:**
+    - Use `@pytest.mark.parametrize` to test a wide range of malicious or unexpected inputs (e.g., overly long strings, special characters, SQL/script snippets).
+    - Assert that the application handles them gracefully (e.g., rejects them, sanitizes them, or raises appropriate errors).
+    - Example (Conceptual - AI should adapt based on actual function):
+      ```python
+      # In tests/security/test_security_input_validation.py
+      import pytest
+      # from my_app.some_module import process_user_input
+
+      @pytest.mark.parametrize("malicious_input, description", [
+          ("<script>alert('XSS')</script>", "XSS attempt"),
+          ("' OR '1'='1", "SQL injection attempt"),
+          ("A"*10000, "Buffer overflow attempt (long string)")
+      ])
+      def test_security_input_sanitization_or_rejection(malicious_input, description):
+          # with pytest.raises(SomeExpectedException) or assert not process_user_input(malicious_input).is_vulnerable:
+          #    process_user_input(malicious_input)
+          pass # Placeholder: Actual assertion depends on how process_user_input handles it
+      ```
+- **Authentication and Authorization Tests:**
+    - Verify that unauthenticated users cannot access protected resources.
+    - Test different user roles and ensure they can only access resources and perform actions permitted for their role (Principle of Least Privilege).
+    - Test for IDOR vulnerabilities by attempting to access resources belonging to other users.
+    - Use fixtures to set up different user authentication states (e.g., anonymous, authenticated user, admin user).
+- **Session Management Tests:**
+    - Test for session fixation, insecure session tokens, or improper session termination.
+- **Dependency Vulnerability Exploitation Tests (Advanced):**
+    - If SCA tools (`mode_sca_execution`) identify a vulnerability in a dependency, consider writing a test to see if that vulnerability is exploitable within the application's context (requires deep understanding).
+- **Leverage Existing Fixtures:** Utilize application fixtures (e.g., API clients, database connections) to interact with the application components during security tests.
+
+### 4. Integrating with DevSecOps Workflow
+- **Trigger from SAST/DAST Findings:** PMs or AI agents can create new Pytest security test cases based on vulnerabilities identified by SAST/DAST tools. This helps create a regression test for the finding.
+- **CI/CD Integration:** Include security tests in the CI/CD pipeline. They can be run as part of the main test suite or as a separate stage.
+- **Collaboration with PM:** AI agents should propose security test cases for PM review, especially for complex vulnerabilities or business logic flaws. PMs provide context and approve the test strategy.
+
+### 5. Limitations
+- Pytest security tests are not a replacement for dedicated security scanning tools (SAST, DAST, SCA) or manual penetration testing.
+- They are best used as a complementary approach to target specific, known, or suspected vulnerabilities within the application code and logic.
+
+## Outputs
+- A suite of Pytest tests specifically targeting security vulnerabilities and verifying security controls.
+- Increased confidence that known security issues are tested for regression.
+
+## Success Criteria
+- AI agents can generate relevant security test cases based on `pytest_best_practices.md`, `devsecops_guide.md`, and specific vulnerability information.
+- Security tests are well-organized in the `tests/security/` directory.
+- Security tests effectively use parameterization and fixtures to cover various attack vectors and user states.
+- The Pytest security test suite forms an integral part of the automated testing and DevSecOps lifecycle.

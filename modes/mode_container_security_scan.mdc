@@ -3,3 +3,57 @@ description:
 globs:
 alwaysApply: false
 ---
+name: Container Security Scan Mode
+description: Guides the AI agent in scanning container images for vulnerabilities (using Trivy) and linting Dockerfiles (using Hadolint), then reporting and suggesting improvements.
+content: |
+  ## コンテナセキュリティスキャンモード
+
+  あなたは現在、コンテナセキュリティスキャンモードで動作しています。Dockerイメージの脆弱性スキャンとDockerfileの静的解析を行い、安全なコンテナ環境の構築を支援してください。
+
+  ### 基本的な行動指針
+  - イメージビルド時やDockerfile変更時に、TrivyやHadolintといった適切なツールを実行する。
+  - 検出された脆弱性やベストプラクティス違反に対して、具体的な修正案を提示する。
+  - ベースイメージの選定や、不要なパッケージの削除、最小権限での実行など、Dockerfileのセキュリティを総合的に考慮する。
+  - 関連ドキュメント:
+    - @knowledge_security_tools_general.mdc#5-コンテナセキュリティ
+    - @references/sca_trivy_usage.md (イメージスキャン部分)
+    - @references/container_hadolint_usage.md
+    - @Docs/dev-docs/devsecops_guide.md#9-コンテナセキュリティ-aiによるスキャン
+
+  ### 主な実行ステップ
+
+  1.  **Dockerfile静的解析 (Hadolint)**:
+      - 対象の `Dockerfile` に対して `hadolint` を実行する。
+      - コマンド例 (詳細は @references/container_hadolint_usage.md を参照):
+        - `hadolint --format json Dockerfile > hadolint-report.json`
+      - 結果を解析し、検出された問題 (特にerror, warningレベル) をPMに報告する。
+      - 各問題に対して、具体的な修正案を提示する (例: ベースイメージのバージョン指定、RUN命令の最適化など)。
+
+  2.  **コンテナイメージ脆弱性スキャン (Trivy)**:
+      - ビルドされたコンテナイメージ、またはPMから指示されたイメージに対して `trivy image` を実行する。
+      - コマンド例 (詳細は @references/sca_trivy_usage.md を参照):
+        - `trivy image -f json --severity CRITICAL,HIGH -o trivy-image-report.json myapp:latest`
+      - 結果 (OSパッケージやライブラリの脆弱性) を解析し、特に深刻度の高い脆弱性をPMに報告する。
+      - 修正済みバージョンが存在する場合は、ベースイメージの更新や関連パッケージのアップデートを提案する。
+
+  3.  **総合的なDockerfile改善提案**:
+      - 上記1, 2の結果を踏まえ、Dockerfile全体の改善提案を行う。
+      - 内容の例:
+        - より軽量で安全なベースイメージへの変更。
+        - 未使用のポートや不要なツールの削除。
+        - `USER`命令を追加し、非rootユーザーでの実行。
+        - マルチステージビルドの活用による最終イメージサイズの削減と不要なビルドツールの排除。
+        - `COPY`命令やキャッシュの最適化。
+
+  4.  **CI/CDパイプラインとの連携**:
+      - DockerイメージのビルドプロセスにHadolintとTrivyのスキャンを組み込むようPMに提案する。
+      - 重大な脆弱性やHadolintのエラーが検出された場合にビルドを失敗させるなどの品質ゲートを設定することを推奨する。
+
+  ### モードの終了
+  コンテナセキュリティスキャン、報告、改善提案が一通り完了したと判断した場合、またはPMから指示があった場合に、包括的開発モード (`@mode_development_execution.mdc`) に戻ります。
+
+  ### PMへの確認事項例
+  - 「Dockerfileの静的解析と、ビルドされたイメージ `[イメージ名]` の脆弱性スキャンを実行します。よろしいですか？」
+  - 「Hadolintで検出された警告レベルの指摘についても、全て修正提案に含めるべきですか？」
+  - 「Trivyで検出された脆弱性のうち、どの深刻度 (例: HIGH以上) から対応を検討しますか？」
+  - 「現在のベースイメージ `[ベースイメージ名]` に複数の脆弱性が見つかりました。より新しいバージョンまたは代替のベースイメージ (例: `distroless`, `alpine`) への変更を検討しますか？」
